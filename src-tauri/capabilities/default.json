@@ -1,0 +1,6 @@
+{
+  "identifier": "main",
+  "description": "Local HUD window only",
+  "windows": ["main"],
+  "permissions": ["core:default", "core:window:allow-start-dragging"]
+}

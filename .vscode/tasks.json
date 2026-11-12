@@ -1,0 +1,9 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {"label": "Quiet Time: desktop", "type": "shell", "command": "npm.cmd run desktop", "problemMatcher": []},
+    {"label": "Quiet Time: desktop development", "type": "shell", "command": "npm.cmd run desktop:dev", "problemMatcher": [], "isBackground": true},
+    {"label": "Quiet Time: frontend build", "type": "shell", "command": "npm.cmd run build", "problemMatcher": [], "group": "build"},
+    {"label": "Quiet Time: Rust tests", "type": "shell", "command": "cargo test --manifest-path src-tauri/Cargo.toml", "problemMatcher": ["$rustc"], "group": "test"}
+  ]
+}

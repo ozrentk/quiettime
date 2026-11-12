@@ -1,0 +1,1 @@
+SELECT name FROM projects ORDER BY name COLLATE NOCASE;

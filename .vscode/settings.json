@@ -1,0 +1,21 @@
+{
+  "rust-analyzer.linkedProjects": ["src-tauri/Cargo.toml"],
+  "rust-analyzer.server.path": "${workspaceFolder}/.tools/cargo/bin/rust-analyzer.exe",
+  "rust-analyzer.server.extraEnv": {
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_HOME": "${workspaceFolder}/.tools/cargo",
+    "RUSTUP_HOME": "${workspaceFolder}/.tools/rustup"
+  },
+  "rust-analyzer.cargo.extraEnv": {
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_HOME": "${workspaceFolder}/.tools/cargo",
+    "RUSTUP_HOME": "${workspaceFolder}/.tools/rustup"
+  },
+  "terminal.integrated.env.windows": {
+    "CARGO_HOME": "${workspaceFolder}/.tools/cargo",
+    "RUSTUP_HOME": "${workspaceFolder}/.tools/rustup",
+    "PATH": "${workspaceFolder}/.tools/cargo/bin;${env:PATH}"
+  },
+  "files.exclude": { "**/.tools": true, "**/target": true },
+  "search.exclude": { "**/.tools": true, "**/target": true, "**/package-lock.json": true, "**/Cargo.lock": true }
+}

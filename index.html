@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiet Time</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header id="titlebar">
+        <div class="brand">
+          <span class="mark">◷</span><span>quiet time</span>
+        </div>
+        <button
+          id="hide"
+          class="icon-button"
+          aria-label="Hide to system tray"
+          title="Hide · Esc"
+        >
+          −
+        </button>
+      </header>
+      <main>
+        <div class="eyebrow">
+          <span id="today"></span><span class="local-label">LOCAL ONLY</span>
+        </div>
+        <section class="capture-bar">
+          <span class="status"
+            ><i id="status-dot"></i><span id="status">Connecting…</span></span
+          ><button id="pause" class="small-button" disabled>
+            Start tracking
+          </button>
+        </section>
+        <div id="preview" class="notice" hidden>
+          Browser preview · desktop capture and saving are available in the
+          Windows app.
+        </div>
+        <div id="error" role="alert" class="notice error" hidden></div>
+        <div class="section-heading">
+          <h1>What are you working on?</h1>
+          <span id="shortcut-hint" class="key-hint">Ctrl + Alt + T</span>
+        </div>
+        <section class="defaults-section" aria-labelledby="defaults-heading">
+          <h2 id="defaults-heading">Default values</h2>
+          <p class="muted defaults-help">
+            Saved automatically. Used to prefill new entries.
+          </p>
+          <form id="entry-form">
+            <label for="project">Project or task</label>
+            <div class="project-row">
+              <input
+                id="project"
+                name="project"
+                placeholder="Type a project or task…"
+                maxlength="120"
+                list="projects"
+                required
+                autocomplete="off"
+              /><button
+                type="button"
+                id="browse-projects"
+                class="small-button"
+                aria-expanded="false"
+                aria-controls="project-picker"
+              >
+                Browse projects ▾
+              </button>
+            </div>
+            <datalist id="projects"></datalist>
+            <p
+              id="project-status"
+              class="project-status"
+              role="status"
+              aria-live="polite"
+            >
+              Press Enter to save this project/task without logging time.
+            </p>
+            <div
+              id="project-picker"
+              class="project-picker"
+              role="region"
+              aria-label="Recorded projects"
+              hidden
+            >
+              <p class="muted">Recorded projects</p>
+              <div id="project-options"></div>
+            </div>
+            <fieldset class="slot-field">
+              <legend id="duration-label">Time slot</legend>
+              <div
+                class="slot-presets"
+                role="group"
+                aria-label="Duration presets"
+              >
+                <button type="button" data-minutes="15" aria-pressed="true">
+                  15min</button
+                ><button type="button" data-minutes="30" aria-pressed="false">
+                  30min</button
+                ><button type="button" data-minutes="60" aria-pressed="false">
+                  1h</button
+                ><button type="button" data-minutes="120" aria-pressed="false">
+                  2h</button
+                ><button type="button" data-minutes="240" aria-pressed="false">
+                  4h</button
+                ><button type="button" data-minutes="480" aria-pressed="false">
+                  8h
+                </button>
+              </div>
+              <div class="custom-duration">
+                <label for="minutes">Custom minutes</label
+                ><input
+                  id="minutes"
+                  type="number"
+                  min="1"
+                  max="480"
+                  step="1"
+                  value="15"
+                  required
+                  inputmode="numeric"
+                /><span class="muted">1–480 min</span>
+              </div>
+            </fieldset>
+            <label for="note"
+              >A quick note <span class="optional">optional</span></label
+            >
+            <input
+              id="note"
+              placeholder="Debugging, planning, that meeting…"
+              maxlength="1000"
+              autocomplete="off"
+            />
+            <button id="save" class="primary" type="button">
+              Log 15 minutes
+            </button>
+            <div class="form-footer">
+              <span id="range-hint"></span
+              ><span id="saved" role="status" aria-live="polite"></span>
+            </div>
+          </form>
+        </section>
+        <button id="manual-entry" class="manual-button" type="button">
+          Manual entry
+        </button>
+        <section class="review">
+          <div class="review-heading">
+            <div class="tabs" role="tablist" aria-label="Today's records">
+              <button role="tab" id="entries-tab" aria-selected="true">
+                Entries <span id="entry-count">0</span></button
+              ><button role="tab" id="activity-tab" aria-selected="false">
+                Activity
+              </button>
+            </div>
+            <span id="total">0m logged</span>
+          </div>
+          <div
+            id="records"
+            class="records"
+            role="tabpanel"
+            aria-labelledby="entries-tab"
+          ></div>
+        </section>
+        <details id="settings">
+          <summary>Preferences & local storage</summary>
+          <label class="check"
+            ><input type="checkbox" id="startup" disabled /> Start with Windows,
+            hidden in the tray</label
+          >
+          <p id="startup-help" class="muted">
+            The HUD stays hidden at sign-in. Use your shortcut or the tray icon
+            to open it.
+          </p>
+          <label class="check"
+            ><input type="checkbox" id="titles" /> Include window titles in
+            future activity</label
+          >
+          <p class="muted">
+            Apps are sampled every 5 seconds. After 60 seconds without input,
+            time is marked idle. Sleep gaps and time in this panel are skipped.
+          </p>
+          <form id="shortcut-form">
+            <label for="shortcut">Show / hide shortcut</label>
+            <div class="shortcut-row">
+              <input
+                id="shortcut"
+                placeholder="Ctrl+Alt+T"
+                maxlength="80"
+              /><button class="small-button">Apply</button>
+            </div>
+          </form>
+          <p class="muted">
+            Closing the panel keeps tracking running. Quit from the system tray
+            to stop the app. Tracking resumes in the state you last selected.
+          </p>
+          <p class="muted">
+            Stored on this computer. Window titles may contain document or
+            website names. Turning titles off affects future records.
+          </p>
+          <code id="database-path"></code>
+        </details>
+      </main>
+      <footer>
+        <span>Capture now. Remember later.</span><span>v0.1</span>
+      </footer>
+      <dialog id="manual-dialog" aria-labelledby="manual-heading">
+        <div class="modal-heading">
+          <h2 id="manual-heading">Manual entry</h2>
+          <button
+            type="button"
+            id="manual-close"
+            class="icon-button"
+            aria-label="Close manual entry"
+          >
+            ×
+          </button>
+        </div>
+        <p class="muted">
+          Prefilled from Default values. Changes here apply only to this entry.
+        </p>
+        <div id="manual-error" role="alert" class="notice error" hidden></div>
+        <form id="manual-form">
+          <label for="manual-project">Project or task</label>
+          <div class="project-row">
+            <input
+              id="manual-project"
+              placeholder="Type a project or task…"
+              maxlength="120"
+              list="projects"
+              required
+              autocomplete="off"
+            /><button
+              type="button"
+              id="manual-browse-projects"
+              class="small-button"
+              aria-expanded="false"
+              aria-controls="manual-project-picker"
+            >
+              Browse projects ▾
+            </button>
+          </div>
+          <p
+            id="manual-project-status"
+            class="project-status"
+            role="status"
+            aria-live="polite"
+          >
+            Press Enter to save this project/task without logging time.
+          </p>
+          <div
+            id="manual-project-picker"
+            class="project-picker"
+            role="region"
+            aria-label="Recorded projects"
+            hidden
+          >
+            <p class="muted">Recorded projects</p>
+            <div id="manual-project-options"></div>
+          </div>
+          <fieldset class="slot-field">
+            <legend>Time spent</legend>
+            <div
+              class="slot-presets"
+              role="group"
+              aria-label="Manual duration presets"
+            >
+              <button type="button" data-minutes="15">15min</button
+              ><button type="button" data-minutes="30">30min</button
+              ><button type="button" data-minutes="60">1h</button
+              ><button type="button" data-minutes="120">2h</button
+              ><button type="button" data-minutes="240">4h</button
+              ><button type="button" data-minutes="480">8h</button>
+            </div>
+            <div class="custom-duration">
+              <label for="manual-minutes">Custom minutes</label
+              ><input
+                id="manual-minutes"
+                type="number"
+                min="1"
+                max="480"
+                step="1"
+                required
+                inputmode="numeric"
+              /><span class="muted">1–480 min</span>
+            </div>
+          </fieldset>
+          <div class="field-row manual-times">
+            <div>
+              <label for="manual-start">Starting at</label
+              ><input type="datetime-local" id="manual-start" required />
+            </div>
+            <div>
+              <label for="manual-end">Ending at</label
+              ><input type="datetime-local" id="manual-end" required />
+            </div>
+          </div>
+          <label for="manual-note"
+            >Quick note <span class="optional">optional</span></label
+          >
+          <input
+            id="manual-note"
+            placeholder="What did you work on?"
+            maxlength="1000"
+            autocomplete="off"
+          />
+          <p id="manual-range" class="muted"></p>
+          <div class="modal-actions">
+            <button type="button" id="manual-cancel" class="manual-button">
+              Cancel</button
+            ><button type="submit" id="manual-save" class="primary">
+              Save entry
+            </button>
+          </div>
+        </form>
+      </dialog>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

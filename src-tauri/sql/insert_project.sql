@@ -1,0 +1,1 @@
+INSERT OR IGNORE INTO projects(name) VALUES(?1);
