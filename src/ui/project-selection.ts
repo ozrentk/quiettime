@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { el, input, textNode } from "../utils/dom";
 import type { UIContext } from "./context";
+import { showStatus } from "./status";
 
 export interface ProjectSelectionController {
   close(): void;
@@ -33,13 +34,7 @@ export function initProjectSelection(
       const list = el(prefix + "project-options");
       list.replaceChildren();
       if (!projects.length)
-        list.append(
-          textNode(
-            "p",
-            "No recorded projects yet. Type a name above to record your first one.",
-            "muted",
-          ),
-        );
+        list.append(textNode("p", "No saved projects.", "muted"));
       for (const project of projects) {
         const button = document.createElement("button");
         button.type = "button";
@@ -76,8 +71,9 @@ export function initProjectSelection(
         if (!prefix) saveDefaults();
         close();
         await context.refresh();
-        el(prefix + "project-status").textContent =
-          `Saved “${name}” to projects/tasks. No time logged.`;
+        const message = `Project saved: ${name}`;
+        if (prefix) el(prefix + "project-status").textContent = message;
+        else showStatus(message);
         input(prefix + "project").focus();
       });
     });

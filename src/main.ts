@@ -12,15 +12,24 @@ import { initQuickNote } from "./ui/quick-note";
 import { initGit } from "./ui/git";
 import { el, input } from "./utils/dom";
 import { initAppearance } from "./ui/appearance";
+import { initTabs } from "./ui/tabs";
+import { initTooltips } from "./ui/tooltips";
 
 initAppearance();
+initTooltips();
 const native = isTauri();
 let data: Dashboard | undefined;
 let busy = false;
 
 function showError(message: unknown = "") {
   const dialog = el<HTMLDialogElement>("manual-dialog");
-  const target = el(dialog.open ? "manual-error" : "error");
+  const target = el(
+    dialog.open
+      ? "manual-error"
+      : el<HTMLDialogElement>("git-dialog").open
+        ? "git-dialog-error"
+        : "error",
+  );
   target.textContent = String(message);
   target.hidden = !message;
 }
@@ -54,7 +63,11 @@ const projects = initProjectSelection(context, defaults.save);
 const manual = initManualEntry(context, defaults, projects, quickNote);
 const settings = initSettings(context);
 const git = initGit(context);
-const records = initRecords(context, git);
+const records = initRecords(context);
+const tabs = initTabs((section) => {
+  projects.close();
+  git.setActive(section === "git");
+});
 
 async function refresh() {
   if (!native) return;
@@ -87,7 +100,7 @@ const hide = () => {
 };
 el("hide").addEventListener("click", hide);
 document.addEventListener("keydown", (event) => {
-  if (event.key !== "Escape" || manual.isOpen()) return;
+  if (event.key !== "Escape" || manual.isOpen() || git.isDialogOpen()) return;
   if (projects.isOpen()) {
     projects.close();
     input("project").focus();
@@ -107,7 +120,8 @@ if (native) {
   const hudOpened = listen("hud-opened", () => {
     defaults.updateDuration();
     if (manual.isOpen()) manual.focus();
-    else input("project").focus();
+    else if (git.isDialogOpen()) git.focusDialog();
+    else tabs.focusActive();
     void refresh().catch(showError);
   });
   const trackingChanged = listen("tracking-changed", () => {

@@ -5,6 +5,7 @@ import type { UIContext } from "./context";
 import type { DefaultValuesController } from "./default-values";
 import type { ProjectSelectionController } from "./project-selection";
 import type { QuickNoteController } from "./quick-note";
+import { showStatus } from "./status";
 
 export interface ManualEntryController {
   isOpen(): boolean;
@@ -118,7 +119,7 @@ export function initManualEntry(
       dialog.close();
       projects.close();
       el("manual-entry").focus();
-      el("saved").textContent = "Manual entry saved locally";
+      showStatus("Manual entry saved.");
       await context.refresh();
     });
   });

@@ -28,261 +28,411 @@
           −
         </button>
       </header>
+      <nav class="app-tabs" role="tablist" aria-label="Quiet Time sections">
+        <button
+          type="button"
+          id="general-tab"
+          role="tab"
+          aria-selected="true"
+          aria-controls="general-panel"
+          tabindex="0"
+        >
+          General</button
+        ><button
+          type="button"
+          id="entries-tab"
+          role="tab"
+          aria-selected="false"
+          aria-controls="entries-panel"
+          tabindex="-1"
+        >
+          Entries</button
+        ><button
+          type="button"
+          id="git-tab"
+          role="tab"
+          aria-selected="false"
+          aria-controls="git-panel"
+          tabindex="-1"
+        >
+          Git</button
+        ><button
+          type="button"
+          id="activity-tab"
+          role="tab"
+          aria-selected="false"
+          aria-controls="activity-panel"
+          tabindex="-1"
+        >
+          Activity</button
+        ><button
+          type="button"
+          id="preferences-tab"
+          role="tab"
+          aria-selected="false"
+          aria-controls="preferences-panel"
+          tabindex="-1"
+        >
+          Preferences
+        </button>
+      </nav>
       <main>
         <div class="eyebrow">
-          <span id="today"></span><span class="local-label">LOCAL ONLY</span>
+          <span id="today"></span>
         </div>
         <section class="capture-bar">
           <span class="status"
             ><i id="status-dot"></i><span id="status">Connecting…</span></span
-          ><button id="pause" class="small-button" disabled>
+          ><button id="pause" class="small-button" disabled="">
             Start tracking
           </button>
         </section>
-        <div id="preview" class="notice" hidden>
+        <div id="preview" class="notice" hidden="">
           Browser preview · desktop capture and saving are available in the
           Windows app.
         </div>
-        <div id="error" role="alert" class="notice error" hidden></div>
-        <div class="section-heading">
-          <h1>What are you working on?</h1>
-          <span id="shortcut-hint" class="key-hint">Ctrl + Alt + T</span>
-        </div>
-        <section class="defaults-section" aria-labelledby="defaults-heading">
-          <h2 id="defaults-heading">Default values</h2>
-          <p class="muted defaults-help">
-            Saved automatically. Used to prefill new entries.
-          </p>
-          <form id="entry-form">
-            <label for="project">Project or task</label>
-            <div class="project-row">
-              <input
-                id="project"
-                name="project"
-                placeholder="Type a project or task…"
-                maxlength="120"
-                list="projects"
-                required
-                autocomplete="off"
-              /><button
-                type="button"
-                id="browse-projects"
-                class="small-button"
-                aria-expanded="false"
-                aria-controls="project-picker"
+        <div id="error" role="alert" class="notice error" hidden=""></div>
+
+        <section
+          id="general-panel"
+          class="tab-panel"
+          role="tabpanel"
+          aria-labelledby="general-tab"
+          tabindex="0"
+        >
+          <div class="section-heading">
+            <h1>What are you working on?</h1>
+            <span id="shortcut-hint" class="key-hint">Ctrl + Alt + T</span>
+          </div>
+          <section class="defaults-section" aria-labelledby="defaults-heading">
+            <div class="label-with-help heading-with-help">
+              <h2 id="defaults-heading">Default values</h2>
+              <span class="help"
+                ><button
+                  type="button"
+                  class="info-button"
+                  aria-label="About Default values"
+                  aria-describedby="info-tooltip-1"
+                  aria-controls="info-tooltip-1"
+                  aria-expanded="false"
+                >
+                  i</button
+                ><span
+                  class="info-tooltip"
+                  id="info-tooltip-1"
+                  hidden=""
+                  role="tooltip"
+                  >Saved automatically. Used to prefill new entries.</span
+                ></span
               >
-                Browse projects ▾
-              </button>
             </div>
-            <datalist id="projects"></datalist>
-            <p
-              id="project-status"
-              class="project-status"
-              role="status"
-              aria-live="polite"
-            >
-              Press Enter to save this project/task without logging time.
-            </p>
-            <div
-              id="project-picker"
-              class="project-picker"
-              role="region"
-              aria-label="Recorded projects"
-              hidden
-            >
-              <p class="muted">Recorded projects</p>
-              <div id="project-options"></div>
-            </div>
-            <fieldset class="slot-field">
-              <legend id="duration-label">Time slot</legend>
-              <div
-                class="slot-presets"
-                role="group"
-                aria-label="Duration presets"
-              >
-                <button type="button" data-minutes="15" aria-pressed="true">
-                  15min</button
-                ><button type="button" data-minutes="30" aria-pressed="false">
-                  30min</button
-                ><button type="button" data-minutes="60" aria-pressed="false">
-                  1h</button
-                ><button type="button" data-minutes="120" aria-pressed="false">
-                  2h</button
-                ><button type="button" data-minutes="240" aria-pressed="false">
-                  4h</button
-                ><button type="button" data-minutes="480" aria-pressed="false">
-                  8h
+
+            <form id="entry-form">
+              <div class="label-with-help">
+                <label for="project">Project or task</label
+                ><span class="help"
+                  ><button
+                    type="button"
+                    class="info-button"
+                    aria-label="About Project or task"
+                    aria-describedby="info-tooltip-2"
+                    aria-controls="info-tooltip-2"
+                    aria-expanded="false"
+                  >
+                    i</button
+                  ><span
+                    class="info-tooltip"
+                    id="info-tooltip-2"
+                    hidden=""
+                    role="tooltip"
+                    >Press Enter to save this project/task without logging
+                    time.</span
+                  ></span
+                >
+              </div>
+              <div class="project-row">
+                <input
+                  id="project"
+                  name="project"
+                  placeholder="Type a project or task…"
+                  maxlength="120"
+                  list="projects"
+                  required=""
+                  autocomplete="off"
+                /><button
+                  type="button"
+                  id="browse-projects"
+                  class="small-button"
+                  aria-expanded="false"
+                  aria-controls="project-picker"
+                >
+                  Browse projects ▾
                 </button>
               </div>
-              <div class="custom-duration">
-                <label for="minutes">Custom minutes</label
-                ><input
-                  id="minutes"
-                  type="number"
-                  min="1"
-                  max="480"
-                  step="1"
-                  value="15"
-                  required
-                  inputmode="numeric"
-                /><span class="muted">1–480 min</span>
+              <datalist id="projects"></datalist>
+
+              <div
+                id="project-picker"
+                class="project-picker"
+                role="region"
+                aria-label="Recorded projects"
+                hidden=""
+              >
+                <div id="project-options"></div>
               </div>
-            </fieldset>
-          </form>
+              <fieldset class="slot-field">
+                <legend id="duration-label">Time slot</legend>
+                <div
+                  class="slot-presets"
+                  role="group"
+                  aria-label="Duration presets"
+                >
+                  <button type="button" data-minutes="15" aria-pressed="true">
+                    15min</button
+                  ><button type="button" data-minutes="30" aria-pressed="false">
+                    30min</button
+                  ><button type="button" data-minutes="60" aria-pressed="false">
+                    1h</button
+                  ><button
+                    type="button"
+                    data-minutes="120"
+                    aria-pressed="false"
+                  >
+                    2h</button
+                  ><button
+                    type="button"
+                    data-minutes="240"
+                    aria-pressed="false"
+                  >
+                    4h</button
+                  ><button
+                    type="button"
+                    data-minutes="480"
+                    aria-pressed="false"
+                  >
+                    8h
+                  </button>
+                </div>
+                <div class="custom-duration">
+                  <div class="label-with-help">
+                    <label for="minutes">Custom minutes</label
+                    ><span class="help"
+                      ><button
+                        type="button"
+                        class="info-button"
+                        aria-label="About Custom minutes"
+                        aria-describedby="info-tooltip-4"
+                        aria-controls="info-tooltip-4"
+                        aria-expanded="false"
+                      >
+                        i</button
+                      ><span
+                        class="info-tooltip"
+                        id="info-tooltip-4"
+                        hidden=""
+                        role="tooltip"
+                        >Enter 1–480 whole minutes.</span
+                      ></span
+                    >
+                  </div>
+                  <input
+                    id="minutes"
+                    type="number"
+                    min="1"
+                    max="480"
+                    step="1"
+                    value="15"
+                    required=""
+                    inputmode="numeric"
+                  />
+                </div>
+              </fieldset>
+            </form>
+          </section>
+          <section
+            class="quick-note-section"
+            aria-labelledby="quick-note-heading"
+          >
+            <h2 id="quick-note-heading">
+              Quick note <span class="optional">optional</span>
+            </h2>
+            <input
+              id="note"
+              aria-labelledby="quick-note-heading"
+              placeholder="Debugging, planning, that meeting…"
+              maxlength="1000"
+              autocomplete="off"
+            />
+          </section>
+          <button id="manual-entry" class="manual-button" type="button">
+            Manual entry
+          </button>
         </section>
         <section
-          class="quick-note-section"
-          aria-labelledby="quick-note-heading"
+          id="entries-panel"
+          class="tab-panel"
+          role="tabpanel"
+          aria-labelledby="entries-tab"
+          tabindex="0"
+          hidden=""
         >
-          <h2 id="quick-note-heading">
-            Quick note <span class="optional">optional</span>
-          </h2>
-          <input
-            id="note"
-            aria-labelledby="quick-note-heading"
-            placeholder="Debugging, planning, that meeting…"
-            maxlength="1000"
-            autocomplete="off"
-          />
-        </section>
-        <button id="manual-entry" class="manual-button" type="button">
-          Manual entry
-        </button>
-        <p id="saved" class="saved-status" role="status" aria-live="polite"></p>
-        <section class="review">
-          <div class="review-heading">
-            <div class="tabs" role="tablist" aria-label="Today's records">
-              <button role="tab" id="entries-tab" aria-selected="true">
-                Entries <span id="entry-count">0</span></button
-              ><button
-                role="tab"
-                id="git-tab"
-                aria-selected="false"
-                aria-controls="git-panel"
+          <div class="section-heading">
+            <div class="label-with-help">
+              <h1>
+                Entries <span id="entry-count" class="heading-count">0</span>
+              </h1>
+              <span class="help"
+                ><button
+                  type="button"
+                  class="info-button"
+                  aria-label="About Entries 0"
+                  aria-describedby="info-tooltip-6"
+                  aria-controls="info-tooltip-6"
+                  aria-expanded="false"
+                >
+                  i</button
+                ><span
+                  class="info-tooltip"
+                  id="info-tooltip-6"
+                  hidden=""
+                  role="tooltip"
+                  >Your manually entered time for today.</span
+                ></span
               >
-                Git</button
-              ><button role="tab" id="activity-tab" aria-selected="false">
-                Activity
-              </button>
             </div>
             <span id="total">0m logged</span>
           </div>
-          <div
-            id="records"
-            class="records"
-            role="tabpanel"
-            aria-labelledby="entries-tab"
-          ></div>
-          <div id="git-panel" role="tabpanel" aria-labelledby="git-tab" hidden>
-            <p class="muted" id="git-mode">
-              Local commit history. No remote requests.
-            </p>
-            <div class="git-toolbar">
-              <label for="git-filter">Repository</label>
-              <select id="git-filter">
-                <option value="">All repositories</option>
-              </select>
-              <button type="button" id="git-edit" class="small-button" disabled>
-                Edit
-              </button>
-              <button
-                type="button"
-                id="git-remove"
-                class="small-button"
-                disabled
-              >
-                Remove
-              </button>
-            </div>
-            <div class="git-filter-row">
-              <div>
-                <label for="git-day"
-                  >Timeline date <span class="optional">optional</span></label
-                ><input type="date" id="git-day" />
-              </div>
-              <button type="button" id="git-refresh" class="small-button">
-                Refresh now
-              </button>
-            </div>
-            <p
-              id="git-status"
-              class="git-status"
-              role="status"
-              aria-live="polite"
-            ></p>
-            <details id="git-setup" open>
-              <summary id="git-setup-title">Add repository</summary>
-              <form id="git-repository-form">
-                <label for="git-path">Local repository folder</label>
-                <div class="project-row">
-                  <input
-                    id="git-path"
-                    list="git-recent-paths"
-                    placeholder="C:\Projects\your-repository"
-                    required
-                    autocomplete="off"
-                  /><button type="button" id="git-browse" class="small-button">
-                    Browse folder
-                  </button>
-                </div>
-                <datalist id="git-recent-paths"></datalist>
-                <button
+
+          <div id="entries-records" class="records"></div>
+        </section>
+        <section
+          id="git-panel"
+          class="tab-panel"
+          role="tabpanel"
+          aria-labelledby="git-tab"
+          tabindex="0"
+          hidden=""
+        >
+          <div class="section-heading">
+            <div class="label-with-help">
+              <h1>Git</h1>
+              <span class="help"
+                ><button
                   type="button"
-                  id="git-inspect"
-                  class="small-button git-read-settings"
+                  class="info-button"
+                  aria-label="About Git"
+                  aria-describedby="git-mode"
+                  aria-controls="git-mode"
+                  aria-expanded="false"
                 >
-                  Read Git settings
-                </button>
-                <label for="git-project">Project or task</label>
-                <select id="git-project" required>
-                  <option value="">Choose a saved project/task</option>
-                </select>
-                <p class="muted git-help">
-                  Save a project/task in Default values first if it is missing
-                  here.
-                </p>
-                <label for="git-from">Import commits from</label
-                ><input type="date" id="git-from" required min="1970-01-01" />
-                <p class="muted git-help">
-                  Saved for this repository. The default is Monday of this week,
-                  at local midnight.
-                </p>
-                <label class="check"
-                  ><input type="checkbox" id="git-all-authors" />All
-                  authors</label
-                >
-                <label for="git-authors">Your author emails</label
-                ><input
-                  id="git-authors"
-                  placeholder="you@work.com, you@personal.com"
-                  autocomplete="off"
-                />
-                <p class="muted git-help">
-                  Defaults to this repository’s configured email(s). Separate
-                  multiple emails with commas.
-                </p>
-                <div class="git-form-actions">
-                  <button type="submit" id="git-save" class="primary">
-                    Save repository</button
-                  ><button type="button" id="git-new" class="small-button">
-                    New repository
-                  </button>
-                </div>
-              </form>
-            </details>
-            <div id="git-repository-statuses"></div>
-            <div class="git-timeline-heading">
-              <h2>Commits</h2>
-              <span id="git-count" class="muted"></span>
+                  i</button
+                ><span
+                  class="info-tooltip"
+                  id="git-mode"
+                  hidden=""
+                  role="tooltip"
+                  >Local commit history. No remote requests.</span
+                ></span
+              >
             </div>
-            <div id="git-commits" class="git-commits"></div>
-            <button type="button" id="git-more" class="manual-button" hidden>
-              Show more commits
+            <button type="button" id="git-add" class="small-button">
+              Add repository
             </button>
           </div>
+
+          <div class="git-toolbar">
+            <label for="git-filter">Repository</label>
+            <select id="git-filter">
+              <option value="">All repositories</option>
+            </select>
+            <button
+              type="button"
+              id="git-edit"
+              class="small-button"
+              disabled=""
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              id="git-remove"
+              class="small-button"
+              disabled=""
+            >
+              Remove
+            </button>
+          </div>
+          <div class="git-filter-row">
+            <div>
+              <label for="git-day"
+                >Timeline date <span class="optional">optional</span></label
+              ><input type="date" id="git-day" />
+            </div>
+            <button type="button" id="git-refresh" class="small-button">
+              Refresh now
+            </button>
+          </div>
+          <p
+            id="git-status"
+            class="git-status"
+            role="status"
+            aria-live="polite"
+          ></p>
+
+          <div id="git-repository-statuses"></div>
+          <div class="git-timeline-heading">
+            <h2>Commits</h2>
+            <span id="git-count" class="muted"></span>
+          </div>
+          <div id="git-commits" class="git-commits"></div>
+          <button type="button" id="git-more" class="manual-button" hidden="">
+            Show more commits
+          </button>
         </section>
-        <details id="settings">
-          <summary>Preferences & local storage</summary>
+        <section
+          id="activity-panel"
+          class="tab-panel"
+          role="tabpanel"
+          aria-labelledby="activity-tab"
+          tabindex="0"
+          hidden=""
+        >
+          <div class="section-heading">
+            <div class="label-with-help">
+              <h1>Activity</h1>
+              <span class="help"
+                ><button
+                  type="button"
+                  class="info-button"
+                  aria-label="About Activity"
+                  aria-describedby="info-tooltip-7"
+                  aria-controls="info-tooltip-7"
+                  aria-expanded="false"
+                >
+                  i</button
+                ><span
+                  class="info-tooltip"
+                  id="info-tooltip-7"
+                  hidden=""
+                  role="tooltip"
+                  >Captured application and window activity for today.</span
+                ></span
+              >
+            </div>
+          </div>
+
+          <div id="activity-records" class="records"></div>
+        </section>
+        <section
+          id="preferences-panel"
+          class="tab-panel"
+          role="tabpanel"
+          aria-labelledby="preferences-tab"
+          tabindex="0"
+          hidden=""
+        >
+          <div class="section-heading"><h1>Preferences</h1></div>
+
           <div class="appearance-setting">
             <label for="colour-scheme">Colour scheme</label>
             <select id="colour-scheme">
@@ -292,24 +442,83 @@
               <option value="dreamy">Dreamy</option>
             </select>
           </div>
-          <label class="check"
-            ><input type="checkbox" id="startup" disabled /> Start with Windows,
-            hidden in the tray</label
-          >
-          <p id="startup-help" class="muted">
-            The HUD stays hidden at sign-in. Use your shortcut or the tray icon
-            to open it.
-          </p>
-          <label class="check"
-            ><input type="checkbox" id="titles" /> Include window titles in
-            future activity</label
-          >
-          <p class="muted">
-            Apps are sampled every 5 seconds. After 60 seconds without input,
-            time is marked idle. Sleep gaps and time in this panel are skipped.
-          </p>
+          <div class="label-with-help">
+            <label class="check"
+              ><input type="checkbox" id="startup" disabled="" /> Start with
+              Windows, hidden in the tray</label
+            ><span class="help"
+              ><button
+                type="button"
+                class="info-button"
+                aria-label="About Start with Windows, hidden in the tray"
+                aria-describedby="startup-help"
+                aria-controls="startup-help"
+                aria-expanded="false"
+              >
+                i</button
+              ><span
+                class="info-tooltip"
+                id="startup-help"
+                hidden=""
+                role="tooltip"
+                >The HUD stays hidden at sign-in. Use your shortcut or the tray
+                icon to open it.</span
+              ></span
+            >
+          </div>
+
+          <div class="label-with-help">
+            <label class="check"
+              ><input type="checkbox" id="titles" /> Include window titles in
+              future activity</label
+            ><span class="help"
+              ><button
+                type="button"
+                class="info-button"
+                aria-label="About Include window titles in future activity"
+                aria-describedby="info-tooltip-11"
+                aria-controls="info-tooltip-11"
+                aria-expanded="false"
+              >
+                i</button
+              ><span
+                class="info-tooltip"
+                id="info-tooltip-11"
+                hidden=""
+                role="tooltip"
+                >Apps are sampled every 5 seconds. After 60 seconds without
+                input, time is marked idle. Sleep gaps and time in this panel
+                are skipped. Stored on this computer. Window titles may contain
+                document or website names. Turning titles off affects future
+                records.</span
+              ></span
+            >
+          </div>
+
           <form id="shortcut-form">
-            <label for="shortcut">Show / hide shortcut</label>
+            <div class="label-with-help">
+              <label for="shortcut">Show / hide shortcut</label
+              ><span class="help"
+                ><button
+                  type="button"
+                  class="info-button"
+                  aria-label="About Show / hide shortcut"
+                  aria-describedby="info-tooltip-12"
+                  aria-controls="info-tooltip-12"
+                  aria-expanded="false"
+                >
+                  i</button
+                ><span
+                  class="info-tooltip"
+                  id="info-tooltip-12"
+                  hidden=""
+                  role="tooltip"
+                  >Closing the panel keeps tracking running. Quit from the
+                  system tray to stop the app. Tracking resumes in the state you
+                  last selected.</span
+                ></span
+              >
+            </div>
             <div class="shortcut-row">
               <input
                 id="shortcut"
@@ -318,23 +527,195 @@
               /><button class="small-button">Apply</button>
             </div>
           </form>
-          <p class="muted">
-            Closing the panel keeps tracking running. Quit from the system tray
-            to stop the app. Tracking resumes in the state you last selected.
-          </p>
-          <p class="muted">
-            Stored on this computer. Window titles may contain document or
-            website names. Turning titles off affects future records.
-          </p>
+
+          <div class="label-with-help heading-with-help">
+            <h2>Local storage</h2>
+            <span class="help"
+              ><button
+                type="button"
+                class="info-button"
+                aria-label="About Local storage"
+                aria-describedby="info-tooltip-13"
+                aria-controls="info-tooltip-13"
+                aria-expanded="false"
+              >
+                i</button
+              ><span
+                class="info-tooltip"
+                id="info-tooltip-13"
+                hidden=""
+                role="tooltip"
+                >Stored on this computer. Window titles may contain document or
+                website names. Turning titles off affects future records.</span
+              ></span
+            >
+          </div>
           <code id="database-path"></code>
-        </details>
+        </section>
       </main>
       <footer>
-        <span>Capture now. Remember later.</span><span>v0.1</span>
+        <span
+          id="footer-status"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        ></span>
+        <span>v0.1</span>
       </footer>
+      <dialog id="git-dialog" aria-labelledby="git-dialog-heading">
+        <div class="modal-heading">
+          <h2 id="git-dialog-heading">Add repository</h2>
+          <button
+            type="button"
+            id="git-dialog-close"
+            class="icon-button"
+            aria-label="Close repository dialog"
+          >
+            ×
+          </button>
+        </div>
+        <div
+          id="git-dialog-error"
+          class="notice error"
+          role="alert"
+          hidden=""
+        ></div>
+        <form id="git-repository-form">
+          <label for="git-path">Local repository folder</label>
+          <div class="project-row">
+            <input
+              id="git-path"
+              list="git-recent-paths"
+              placeholder="C:\Projects\your-repository"
+              required=""
+              autocomplete="off"
+            /><button type="button" id="git-browse" class="small-button">
+              Browse folder
+            </button>
+          </div>
+          <datalist id="git-recent-paths"></datalist>
+          <button
+            type="button"
+            id="git-inspect"
+            class="small-button git-read-settings"
+          >
+            Read Git settings
+          </button>
+          <div class="label-with-help">
+            <label for="git-project">Project or task</label
+            ><span class="help"
+              ><button
+                type="button"
+                class="info-button"
+                aria-label="About Project or task"
+                aria-describedby="info-tooltip-8"
+                aria-controls="info-tooltip-8"
+                aria-expanded="false"
+              >
+                i</button
+              ><span
+                class="info-tooltip"
+                id="info-tooltip-8"
+                hidden=""
+                role="tooltip"
+                >Save a project/task in Default values first if it is missing
+                here.</span
+              ></span
+            >
+          </div>
+          <select id="git-project" required="">
+            <option value="">Choose a saved project/task</option>
+          </select>
+
+          <div class="label-with-help">
+            <label for="git-from">Import commits from</label
+            ><span class="help"
+              ><button
+                type="button"
+                class="info-button"
+                aria-label="About Import commits from"
+                aria-describedby="info-tooltip-9"
+                aria-controls="info-tooltip-9"
+                aria-expanded="false"
+              >
+                i</button
+              ><span
+                class="info-tooltip"
+                id="info-tooltip-9"
+                hidden=""
+                role="tooltip"
+                >Saved for this repository. The default is Monday of this week,
+                at local midnight.</span
+              ></span
+            >
+          </div>
+          <input type="date" id="git-from" required="" min="1970-01-01" />
+
+          <label class="check"
+            ><input type="checkbox" id="git-all-authors" />All authors</label
+          >
+          <div class="label-with-help">
+            <label for="git-authors">Your author emails</label
+            ><span class="help"
+              ><button
+                type="button"
+                class="info-button"
+                aria-label="About Your author emails"
+                aria-describedby="info-tooltip-10"
+                aria-controls="info-tooltip-10"
+                aria-expanded="false"
+              >
+                i</button
+              ><span
+                class="info-tooltip"
+                id="info-tooltip-10"
+                hidden=""
+                role="tooltip"
+                >Defaults to this repository’s configured email(s). Separate
+                multiple emails with commas.</span
+              ></span
+            >
+          </div>
+          <input
+            id="git-authors"
+            placeholder="you@work.com, you@personal.com"
+            autocomplete="off"
+          />
+
+          <div class="modal-actions">
+            <button type="button" id="git-dialog-cancel" class="manual-button">
+              Cancel
+            </button>
+            <button type="submit" id="git-save" class="primary">
+              Save repository
+            </button>
+          </div>
+        </form>
+      </dialog>
       <dialog id="manual-dialog" aria-labelledby="manual-heading">
         <div class="modal-heading">
-          <h2 id="manual-heading">Manual entry</h2>
+          <div class="label-with-help">
+            <h2 id="manual-heading">Manual entry</h2>
+            <span class="help"
+              ><button
+                type="button"
+                class="info-button"
+                aria-label="About Manual entry"
+                aria-describedby="info-tooltip-14"
+                aria-controls="info-tooltip-14"
+                aria-expanded="false"
+              >
+                i</button
+              ><span
+                class="info-tooltip"
+                id="info-tooltip-14"
+                hidden=""
+                role="tooltip"
+                >Prefilled from Default values and Quick note. Changes here
+                apply only to this entry.</span
+              ></span
+            >
+          </div>
           <button
             type="button"
             id="manual-close"
@@ -344,20 +725,43 @@
             ×
           </button>
         </div>
-        <p class="muted">
-          Prefilled from Default values and Quick note. Changes here apply only
-          to this entry.
-        </p>
-        <div id="manual-error" role="alert" class="notice error" hidden></div>
+
+        <div
+          id="manual-error"
+          role="alert"
+          class="notice error"
+          hidden=""
+        ></div>
         <form id="manual-form">
-          <label for="manual-project">Project or task</label>
+          <div class="label-with-help">
+            <label for="manual-project">Project or task</label
+            ><span class="help"
+              ><button
+                type="button"
+                class="info-button"
+                aria-label="About Project or task"
+                aria-describedby="info-tooltip-3"
+                aria-controls="info-tooltip-3"
+                aria-expanded="false"
+              >
+                i</button
+              ><span
+                class="info-tooltip"
+                id="info-tooltip-3"
+                hidden=""
+                role="tooltip"
+                >Press Enter to save this project/task without logging
+                time.</span
+              ></span
+            >
+          </div>
           <div class="project-row">
             <input
               id="manual-project"
               placeholder="Type a project or task…"
               maxlength="120"
               list="projects"
-              required
+              required=""
               autocomplete="off"
             /><button
               type="button"
@@ -374,17 +778,14 @@
             class="project-status"
             role="status"
             aria-live="polite"
-          >
-            Press Enter to save this project/task without logging time.
-          </p>
+          ></p>
           <div
             id="manual-project-picker"
             class="project-picker"
             role="region"
             aria-label="Recorded projects"
-            hidden
+            hidden=""
           >
-            <p class="muted">Recorded projects</p>
             <div id="manual-project-options"></div>
           </div>
           <fieldset class="slot-field">
@@ -402,26 +803,46 @@
               ><button type="button" data-minutes="480">8h</button>
             </div>
             <div class="custom-duration">
-              <label for="manual-minutes">Custom minutes</label
-              ><input
+              <div class="label-with-help">
+                <label for="manual-minutes">Custom minutes</label
+                ><span class="help"
+                  ><button
+                    type="button"
+                    class="info-button"
+                    aria-label="About Custom minutes"
+                    aria-describedby="info-tooltip-5"
+                    aria-controls="info-tooltip-5"
+                    aria-expanded="false"
+                  >
+                    i</button
+                  ><span
+                    class="info-tooltip"
+                    id="info-tooltip-5"
+                    hidden=""
+                    role="tooltip"
+                    >Enter 1–480 whole minutes.</span
+                  ></span
+                >
+              </div>
+              <input
                 id="manual-minutes"
                 type="number"
                 min="1"
                 max="480"
                 step="1"
-                required
+                required=""
                 inputmode="numeric"
-              /><span class="muted">1–480 min</span>
+              />
             </div>
           </fieldset>
           <div class="field-row manual-times">
             <div>
               <label for="manual-start">Starting at</label
-              ><input type="datetime-local" id="manual-start" required />
+              ><input type="datetime-local" id="manual-start" required="" />
             </div>
             <div>
               <label for="manual-end">Ending at</label
-              ><input type="datetime-local" id="manual-end" required />
+              ><input type="datetime-local" id="manual-end" required="" />
             </div>
           </div>
           <label for="manual-note"

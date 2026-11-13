@@ -2,32 +2,11 @@ import { invoke } from "@tauri-apps/api/core";
 import { el, textNode } from "../utils/dom";
 import { formatTime as time, formatDuration as duration } from "../utils/time";
 import type { UIContext } from "./context";
-import type { GitController } from "./git";
-export function initRecords(context: UIContext, git: GitController) {
-  let tab: "entries" | "git" | "activity" = "entries";
-  function render() {
+export function initRecords(context: UIContext) {
+  function renderList(tab: "entries" | "activity") {
     const data = context.getData();
-    const list = el("records");
+    const list = el(tab + "-records");
     list.replaceChildren();
-    el("entries-tab").setAttribute("aria-selected", String(tab === "entries"));
-    el("activity-tab").setAttribute(
-      "aria-selected",
-      String(tab === "activity"),
-    );
-    el("git-tab").setAttribute("aria-selected", String(tab === "git"));
-    for (const value of ["entries", "git", "activity"] as const) {
-      el(`${value}-tab`).setAttribute("tabindex", value === tab ? "0" : "-1");
-      el(`${value}-tab`).setAttribute(
-        "aria-controls",
-        value === "git" ? "git-panel" : "records",
-      );
-    }
-    list.hidden = tab === "git";
-    el("git-panel").hidden = tab !== "git";
-    el("total").hidden = tab === "git";
-    git.setActive(tab === "git");
-    if (tab === "git") return;
-    list.setAttribute("aria-labelledby", `${tab}-tab`);
     const rows =
       tab === "entries" ? (data?.entries ?? []) : (data?.activity ?? []);
     if (!rows.length) {
@@ -35,10 +14,10 @@ export function initRecords(context: UIContext, git: GitController) {
         textNode(
           "p",
           tab === "entries"
-            ? "A quieter way to keep track. Your entries will appear here."
+            ? "Manual entries will appear here."
             : data?.paused
-              ? "Start tracking to build your local activity timeline."
-              : "Your activity will appear after the first two samples.",
+              ? "Start tracking to record activity."
+              : "No activity recorded yet.",
           "empty",
         ),
       );
@@ -94,33 +73,10 @@ export function initRecords(context: UIContext, git: GitController) {
       el("total").textContent =
         `${duration(data.entries.reduce((sum, entry) => sum + Math.max(0, Math.min(entry.end, to) - Math.max(entry.start, from)), 0))} logged`;
     }
-    render();
+    renderList("entries");
+    renderList("activity");
   }
-  const tabs = ["entries", "git", "activity"] as const;
-  for (const value of tabs) {
-    el(`${value}-tab`).addEventListener("click", () => {
-      tab = value;
-      render();
-    });
-    el(`${value}-tab`).addEventListener("keydown", (event) => {
-      const index = tabs.indexOf(tab);
-      const next =
-        event.key === "ArrowRight"
-          ? (index + 1) % tabs.length
-          : event.key === "ArrowLeft"
-            ? (index + tabs.length - 1) % tabs.length
-            : event.key === "Home"
-              ? 0
-              : event.key === "End"
-                ? tabs.length - 1
-                : null;
-      if (next === null) return;
-      event.preventDefault();
-      tab = tabs[next];
-      render();
-      el(`${tab}-tab`).focus();
-    });
-  }
-  render();
+  renderList("entries");
+  renderList("activity");
   return { render: updateTotals };
 }

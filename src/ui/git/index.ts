@@ -5,11 +5,14 @@ import { el, input } from "../../utils/dom";
 import type { UIContext } from "../context";
 import { initRepositoryForm } from "./repository-form";
 import { renderGitTimeline } from "./timeline";
+import { showStatus } from "../status";
 
 export interface GitController {
   setActive(active: boolean): void;
   update(projects: string[]): void;
   refresh(): Promise<void>;
+  isDialogOpen(): boolean;
+  focusDialog(): void;
 }
 
 export function initGit(context: UIContext): GitController {
@@ -29,7 +32,11 @@ export function initGit(context: UIContext): GitController {
   const selectedId = () => (selection.value ? Number(selection.value) : null);
 
   function status(message: string, error = false) {
-    el("git-status").textContent = message;
+    const inDialog = el<HTMLDialogElement>("git-dialog").open;
+    el("git-status").textContent = error && !inDialog ? message : "";
+    el("git-dialog-error").textContent = error && inDialog ? message : "";
+    el("git-dialog-error").hidden = !error || !inDialog;
+    showStatus(error ? "" : message);
     el("git-status").className = error ? "git-status git-error" : "git-status";
   }
 
@@ -44,6 +51,7 @@ export function initGit(context: UIContext): GitController {
       el<HTMLButtonElement>(id).disabled =
         pending || !selected || !context.native;
     selection.disabled = pending;
+    el<HTMLButtonElement>("git-add").disabled = pending;
     input("git-day").disabled = pending;
     form.setBusy(pending);
   }
@@ -192,6 +200,8 @@ export function initGit(context: UIContext): GitController {
   controls();
 
   return {
+    isDialogOpen: form.isOpen,
+    focusDialog: form.focus,
     setActive(value) {
       const changed = value !== active;
       active = value;

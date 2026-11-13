@@ -54,8 +54,10 @@ The records area has three tabs: **Entries** for manually entered time,
 **Git** for commit history, and **Activity** for foreground app/window activity.
 Git commits do not create time entries or link to manual entries.
 
-In **Git**, add a local repository by typing its path or choosing **Browse
-folder**. **Read Git settings** validates the path, resolves its repository root,
+In **Git**, choose **Add repository** to open the repository dialog, then type a
+path or choose **Browse folder**. **Edit** opens the same dialog with saved
+settings. Cancel or Escape discards changes; saving closes it and starts import.
+**Read Git settings** validates the path, resolves its repository root,
 and reads configured `user.email` values. Previously added folders appear in the
 path suggestions and repository selector; external editor/client history is not
 scanned. Choose a saved project/task for the repository.
@@ -141,7 +143,13 @@ serialization lives in `src/storage/defaults.ts`, and data types in `src/types.t
 Rust timestamp and positioning helpers live in `src-tauri/src/utils.rs`.
 UI controllers live in `src/ui/`: `default-values.ts`, `manual-entry.ts`,
 `project-selection.ts`, `quick-note.ts`, and `settings.ts` own their controls and event handlers;
-`records.ts` renders entries and activity. They receive a shared `UIContext`
+`records.ts` renders separate entries and activity lists. `tabs.ts` owns the
+top-level General, Entries, Git, Activity, and Preferences navigation, keyboard
+navigation, and per-panel scroll positions. General opens first; switching tabs
+keeps unsaved form values. `tooltips.ts` handles the information icons next to
+labels (hover, focus, or click; Escape dismisses), while `status.ts` sends action
+confirmations to the footer. Errors remain visible next to the relevant controls.
+Controllers receive a shared `UIContext`
 for refreshes and serialized actions. `src/main.ts` initializes the controllers,
 coordinates dashboard refreshes, and handles window-level events.
 The Rust entry point wires together `commands.rs` (frontend commands),
@@ -195,7 +203,7 @@ timings measured from the executable's startup (excluding Cargo compilation).
 or save entries. Closing the desktop panel leaves the tray app running; use the
 tray **Quit** action to end it.
 
-Choose Green, Light, Dark, or Dreamy under **Preferences & local storage → Colour
+Choose Green, Light, Dark, or Dreamy under **Preferences → Colour
 scheme**. The choice is saved on this computer; Green is the initial default.
 Theme palettes live in `src/themes.css`, separate from layout styles.
 

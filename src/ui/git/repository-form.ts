@@ -15,15 +15,38 @@ interface FormContext {
 }
 
 export function initRepositoryForm(context: FormContext) {
+  const dialog = el<HTMLDialogElement>("git-dialog");
   const form = el<HTMLFormElement>("git-repository-form");
   const project = el<HTMLSelectElement>("git-project");
   let editingId: number | null = null;
   let repositories: GitRepository[] = [];
   let busy = false;
   let hasProjects = false;
+  let opener: HTMLElement | null = null;
+
+  const focus = () => input("git-path").focus();
+  function open() {
+    if (dialog.open) return;
+    opener = document.activeElement as HTMLElement | null;
+    context.status("");
+    dialog.showModal();
+    focus();
+  }
+
+  function dismiss() {
+    dialog.close();
+    if (opener instanceof HTMLButtonElement && opener.disabled)
+      el("git-tab").focus();
+    else (opener ?? el("git-add")).focus();
+  }
+
+  function close() {
+    if (!busy) dismiss();
+  }
 
   function setBusy(value: boolean) {
     busy = value;
+    el<HTMLButtonElement>("git-dialog-close").disabled = value;
     for (const field of form.querySelectorAll<
       HTMLInputElement | HTMLSelectElement | HTMLButtonElement
     >("input,select,button"))
@@ -40,7 +63,7 @@ export function initRepositoryForm(context: FormContext) {
     input("git-from").value = currentWeekStart();
     input("git-from").max = dateValue();
     project.value = input("project").value;
-    el("git-setup-title").textContent = "Add repository";
+    el("git-dialog-heading").textContent = "Add repository";
     setBusy(busy);
   }
 
@@ -51,9 +74,9 @@ export function initRepositoryForm(context: FormContext) {
     input("git-from").value = repo.importFrom;
     input("git-authors").value = repo.authors.join(", ");
     input("git-all-authors").checked = repo.allAuthors;
-    el("git-setup-title").textContent = `Edit ${repo.name}`;
-    el<HTMLDetailsElement>("git-setup").open = true;
+    el("git-dialog-heading").textContent = "Edit repository";
     setBusy(busy);
+    open();
   }
 
   function render(values: GitRepository[], projects: string[]) {
@@ -84,7 +107,6 @@ export function initRepositoryForm(context: FormContext) {
     );
     if (editingId !== null && !values.some((repo) => repo.id === editingId))
       reset();
-    if (!values.length) el<HTMLDetailsElement>("git-setup").open = true;
     setBusy(busy);
   }
 
@@ -120,9 +142,16 @@ export function initRepositoryForm(context: FormContext) {
       }),
   );
   input("git-all-authors").addEventListener("change", () => setBusy(busy));
-  el("git-new").addEventListener("click", () => {
+  el("git-add").addEventListener("click", () => {
+    if (busy) return;
     reset();
-    input("git-path").focus();
+    open();
+  });
+  for (const id of ["git-dialog-close", "git-dialog-cancel"])
+    el(id).addEventListener("click", close);
+  dialog.addEventListener("cancel", (event) => {
+    event.preventDefault();
+    close();
   });
   form.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -141,10 +170,10 @@ export function initRepositoryForm(context: FormContext) {
         allAuthors: input("git-all-authors").checked,
       });
       editingId = id;
+      dismiss();
       await context.saved(id);
-      el<HTMLDetailsElement>("git-setup").open = false;
     });
   });
   reset();
-  return { render, edit, reset, setBusy };
+  return { render, edit, reset, setBusy, isOpen: () => dialog.open, focus };
 }

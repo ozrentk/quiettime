@@ -49,8 +49,8 @@ export function renderGitTimeline(data: GitSnapshot, limit: number) {
       textNode(
         "p",
         data.repositories.length
-          ? "No commits match this selection. Check the import date and author emails, then refresh."
-          : "Add a local repository to see its commits here.",
+          ? "No commits match this selection."
+          : "No repositories added.",
         "empty",
       ),
     );
