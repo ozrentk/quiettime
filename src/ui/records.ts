@@ -2,8 +2,9 @@ import { invoke } from "@tauri-apps/api/core";
 import { el, textNode } from "../utils/dom";
 import { formatTime as time, formatDuration as duration } from "../utils/time";
 import type { UIContext } from "./context";
-export function initRecords(context: UIContext) {
-  let tab: "entries" | "activity" = "entries";
+import type { GitController } from "./git";
+export function initRecords(context: UIContext, git: GitController) {
+  let tab: "entries" | "git" | "activity" = "entries";
   function render() {
     const data = context.getData();
     const list = el("records");
@@ -13,6 +14,19 @@ export function initRecords(context: UIContext) {
       "aria-selected",
       String(tab === "activity"),
     );
+    el("git-tab").setAttribute("aria-selected", String(tab === "git"));
+    for (const value of ["entries", "git", "activity"] as const) {
+      el(`${value}-tab`).setAttribute("tabindex", value === tab ? "0" : "-1");
+      el(`${value}-tab`).setAttribute(
+        "aria-controls",
+        value === "git" ? "git-panel" : "records",
+      );
+    }
+    list.hidden = tab === "git";
+    el("git-panel").hidden = tab !== "git";
+    el("total").hidden = tab === "git";
+    git.setActive(tab === "git");
+    if (tab === "git") return;
     list.setAttribute("aria-labelledby", `${tab}-tab`);
     const rows =
       tab === "entries" ? (data?.entries ?? []) : (data?.activity ?? []);
@@ -82,11 +96,31 @@ export function initRecords(context: UIContext) {
     }
     render();
   }
-  for (const value of ["entries", "activity"] as const)
+  const tabs = ["entries", "git", "activity"] as const;
+  for (const value of tabs) {
     el(`${value}-tab`).addEventListener("click", () => {
       tab = value;
       render();
     });
+    el(`${value}-tab`).addEventListener("keydown", (event) => {
+      const index = tabs.indexOf(tab);
+      const next =
+        event.key === "ArrowRight"
+          ? (index + 1) % tabs.length
+          : event.key === "ArrowLeft"
+            ? (index + tabs.length - 1) % tabs.length
+            : event.key === "Home"
+              ? 0
+              : event.key === "End"
+                ? tabs.length - 1
+                : null;
+      if (next === null) return;
+      event.preventDefault();
+      tab = tabs[next];
+      render();
+      el(`${tab}-tab`).focus();
+    });
+  }
   render();
   return { render: updateTotals };
 }

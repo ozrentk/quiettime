@@ -1,0 +1,108 @@
+:root,
+:root[data-theme="green"] {
+  color-scheme: dark;
+  --bg: #131b18;
+  --surface: #17221b;
+  --field: #1d2721;
+  --raised: #1c2920;
+  --hover: #334238;
+  --selected: #35533f;
+  --border: #2a342e;
+  --border-control: #405346;
+  --border-strong: #5b7965;
+  --text: #e8eee9;
+  --secondary: #bdcfc1;
+  --muted: #98ac9f;
+  --accent: #a7e4bb;
+  --focus: #95d7ac;
+  --accent-hover: #baedca;
+  --on-accent: #182b20;
+  --selected-text: #d5f3df;
+  --paused: #b6a575;
+  --danger: #efc8ac;
+  --error-bg: #382921;
+  --error-border: #77523d;
+  --shadow: #0009;
+  --backdrop: #080e0bbc;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f5f7fa;
+  --surface: #ffffff;
+  --field: #ffffff;
+  --raised: #edf2f7;
+  --hover: #e1e8f1;
+  --selected: #dce9fb;
+  --border: #d7dfe9;
+  --border-control: #a5b3c5;
+  --border-strong: #71839b;
+  --text: #182435;
+  --secondary: #374c66;
+  --muted: #54657b;
+  --accent: #245bb0;
+  --focus: #245bb0;
+  --accent-hover: #194b96;
+  --on-accent: #ffffff;
+  --selected-text: #173d76;
+  --paused: #83620d;
+  --danger: #9d3025;
+  --error-bg: #fff0eb;
+  --error-border: #d99888;
+  --shadow: #17243533;
+  --backdrop: #17243566;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #17191e;
+  --surface: #202329;
+  --field: #252930;
+  --raised: #292e36;
+  --hover: #353c47;
+  --selected: #34445b;
+  --border: #343b45;
+  --border-control: #596473;
+  --border-strong: #78889e;
+  --text: #f0f2f7;
+  --secondary: #c6cedb;
+  --muted: #a4afc1;
+  --accent: #a8c7fa;
+  --focus: #8bb5f7;
+  --accent-hover: #c4d9fc;
+  --on-accent: #132d50;
+  --selected-text: #e0ecff;
+  --paused: #dfc384;
+  --danger: #ffc1ad;
+  --error-bg: #392923;
+  --error-border: #90624e;
+  --shadow: #0009;
+  --backdrop: #0b0e14bc;
+}
+
+:root[data-theme="dreamy"] {
+  color-scheme: dark;
+  --bg: #060d2b;
+  --surface: #0d173c;
+  --field: #121f48;
+  --raised: #152751;
+  --hover: #223767;
+  --selected: #234773;
+  --border: #26355c;
+  --border-control: #49618e;
+  --border-strong: #7192bf;
+  --text: #edf1ff;
+  --secondary: #c9d7f5;
+  --muted: #a5b6dc;
+  --accent: #54e6f3;
+  --focus: #54e6f3;
+  --accent-hover: #9af6fb;
+  --on-accent: #06213a;
+  --selected-text: #e1faff;
+  --paused: #dac6fa;
+  --danger: #ffc5c4;
+  --error-bg: #38213e;
+  --error-border: #956387;
+  --shadow: #000a;
+  --backdrop: #040822cc;
+}

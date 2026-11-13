@@ -4,6 +4,7 @@ import { formatTime, isValidMinutes, localDateValue } from "../utils/time";
 import type { UIContext } from "./context";
 import type { DefaultValuesController } from "./default-values";
 import type { ProjectSelectionController } from "./project-selection";
+import type { QuickNoteController } from "./quick-note";
 
 export interface ManualEntryController {
   isOpen(): boolean;
@@ -14,6 +15,7 @@ export function initManualEntry(
   context: UIContext,
   defaults: DefaultValuesController,
   projects: ProjectSelectionController,
+  quickNote: QuickNoteController,
 ): ManualEntryController {
   const dialog = el<HTMLDialogElement>("manual-dialog");
   let minutes = 15;
@@ -51,7 +53,7 @@ export function initManualEntry(
     projects.close();
     const values = defaults.getValues();
     input("manual-project").value = values.project;
-    input("manual-note").value = values.note;
+    input("manual-note").value = quickNote.getValue();
     input("manual-end").value = localDateValue(new Date());
     anchor = "end";
     updateDuration(isValidMinutes(values.minutes) ? values.minutes : 15);

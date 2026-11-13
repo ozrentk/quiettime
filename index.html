@@ -4,13 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Quiet Time</title>
+    <link rel="icon" type="image/png" href="/src/assets/quiet-time.png" />
+    <link rel="stylesheet" href="/src/themes.css" />
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
     <div id="app">
       <header id="titlebar">
         <div class="brand">
-          <span class="mark">◷</span><span>quiet time</span>
+          <img
+            class="mark"
+            src="/src/assets/quiet-time.png"
+            alt=""
+            draggable="false"
+          /><span>quiet time</span>
         </div>
         <button
           id="hide"
@@ -121,32 +128,39 @@
                 /><span class="muted">1–480 min</span>
               </div>
             </fieldset>
-            <label for="note"
-              >A quick note <span class="optional">optional</span></label
-            >
-            <input
-              id="note"
-              placeholder="Debugging, planning, that meeting…"
-              maxlength="1000"
-              autocomplete="off"
-            />
-            <button id="save" class="primary" type="button">
-              Log 15 minutes
-            </button>
-            <div class="form-footer">
-              <span id="range-hint"></span
-              ><span id="saved" role="status" aria-live="polite"></span>
-            </div>
           </form>
+        </section>
+        <section
+          class="quick-note-section"
+          aria-labelledby="quick-note-heading"
+        >
+          <h2 id="quick-note-heading">
+            Quick note <span class="optional">optional</span>
+          </h2>
+          <input
+            id="note"
+            aria-labelledby="quick-note-heading"
+            placeholder="Debugging, planning, that meeting…"
+            maxlength="1000"
+            autocomplete="off"
+          />
         </section>
         <button id="manual-entry" class="manual-button" type="button">
           Manual entry
         </button>
+        <p id="saved" class="saved-status" role="status" aria-live="polite"></p>
         <section class="review">
           <div class="review-heading">
             <div class="tabs" role="tablist" aria-label="Today's records">
               <button role="tab" id="entries-tab" aria-selected="true">
                 Entries <span id="entry-count">0</span></button
+              ><button
+                role="tab"
+                id="git-tab"
+                aria-selected="false"
+                aria-controls="git-panel"
+              >
+                Git</button
               ><button role="tab" id="activity-tab" aria-selected="false">
                 Activity
               </button>
@@ -159,9 +173,125 @@
             role="tabpanel"
             aria-labelledby="entries-tab"
           ></div>
+          <div id="git-panel" role="tabpanel" aria-labelledby="git-tab" hidden>
+            <p class="muted" id="git-mode">
+              Local commit history. No remote requests.
+            </p>
+            <div class="git-toolbar">
+              <label for="git-filter">Repository</label>
+              <select id="git-filter">
+                <option value="">All repositories</option>
+              </select>
+              <button type="button" id="git-edit" class="small-button" disabled>
+                Edit
+              </button>
+              <button
+                type="button"
+                id="git-remove"
+                class="small-button"
+                disabled
+              >
+                Remove
+              </button>
+            </div>
+            <div class="git-filter-row">
+              <div>
+                <label for="git-day"
+                  >Timeline date <span class="optional">optional</span></label
+                ><input type="date" id="git-day" />
+              </div>
+              <button type="button" id="git-refresh" class="small-button">
+                Refresh now
+              </button>
+            </div>
+            <p
+              id="git-status"
+              class="git-status"
+              role="status"
+              aria-live="polite"
+            ></p>
+            <details id="git-setup" open>
+              <summary id="git-setup-title">Add repository</summary>
+              <form id="git-repository-form">
+                <label for="git-path">Local repository folder</label>
+                <div class="project-row">
+                  <input
+                    id="git-path"
+                    list="git-recent-paths"
+                    placeholder="C:\Projects\your-repository"
+                    required
+                    autocomplete="off"
+                  /><button type="button" id="git-browse" class="small-button">
+                    Browse folder
+                  </button>
+                </div>
+                <datalist id="git-recent-paths"></datalist>
+                <button
+                  type="button"
+                  id="git-inspect"
+                  class="small-button git-read-settings"
+                >
+                  Read Git settings
+                </button>
+                <label for="git-project">Project or task</label>
+                <select id="git-project" required>
+                  <option value="">Choose a saved project/task</option>
+                </select>
+                <p class="muted git-help">
+                  Save a project/task in Default values first if it is missing
+                  here.
+                </p>
+                <label for="git-from">Import commits from</label
+                ><input type="date" id="git-from" required min="1970-01-01" />
+                <p class="muted git-help">
+                  Saved for this repository. The default is Monday of this week,
+                  at local midnight.
+                </p>
+                <label class="check"
+                  ><input type="checkbox" id="git-all-authors" />All
+                  authors</label
+                >
+                <label for="git-authors">Your author emails</label
+                ><input
+                  id="git-authors"
+                  placeholder="you@work.com, you@personal.com"
+                  autocomplete="off"
+                />
+                <p class="muted git-help">
+                  Defaults to this repository’s configured email(s). Separate
+                  multiple emails with commas.
+                </p>
+                <div class="git-form-actions">
+                  <button type="submit" id="git-save" class="primary">
+                    Save repository</button
+                  ><button type="button" id="git-new" class="small-button">
+                    New repository
+                  </button>
+                </div>
+              </form>
+            </details>
+            <div id="git-repository-statuses"></div>
+            <div class="git-timeline-heading">
+              <h2>Commits</h2>
+              <span id="git-count" class="muted"></span>
+            </div>
+            <div id="git-commits" class="git-commits"></div>
+            <button type="button" id="git-more" class="manual-button" hidden>
+              Show more commits
+            </button>
+          </div>
         </section>
         <details id="settings">
           <summary>Preferences & local storage</summary>
+          <div class="appearance-setting">
+            <label for="colour-scheme">Colour scheme</label>
+            <select id="colour-scheme">
+              <option value="green">Green</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+              <option value="dreamy">Dreamy</option>
+            </select>
+          </div>
           <label class="check"
             ><input type="checkbox" id="startup" disabled /> Start with Windows,
             hidden in the tray</label
@@ -215,7 +345,8 @@
           </button>
         </div>
         <p class="muted">
-          Prefilled from Default values. Changes here apply only to this entry.
+          Prefilled from Default values and Quick note. Changes here apply only
+          to this entry.
         </p>
         <div id="manual-error" role="alert" class="notice error" hidden></div>
         <form id="manual-form">

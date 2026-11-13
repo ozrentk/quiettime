@@ -1,29 +1,25 @@
-// Small code-drawn clock glyph, encoded as a Windows ICO (32-bit DIB).
-import { mkdirSync, writeFileSync } from 'node:fs';
-const size = 32;
-const dib = Buffer.alloc(40 + size * size * 4 + size * 4);
-dib.writeUInt32LE(40, 0);
-dib.writeInt32LE(size, 4);
-dib.writeInt32LE(size * 2, 8);
-dib.writeUInt16LE(1, 12);
-dib.writeUInt16LE(32, 14);
-for (let y = 0; y < size; y++) {
-  for (let x = 0; x < size; x++) {
-    const visible = x >= 3 && x < 29 && y >= 3 && y < 29;
-    const hand = (x >= 14 && x <= 17 && y >= 8 && y <= 17)
-      || (x >= 14 && x <= 24 && y >= 14 && y <= 17);
-    const offset = 40 + ((size - 1 - y) * size + x) * 4;
-    dib.set(hand ? [28, 30, 20, 255] : [180, 224, 137, visible ? 255 : 0], offset);
-  }
+// Package the supplied artwork using Tauri's icon generator. No artwork is redrawn.
+import { copyFileSync, mkdirSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+const root = fileURLToPath(new URL("../", import.meta.url));
+const result = spawnSync(
+  process.execPath,
+  [
+    "node_modules/@tauri-apps/cli/tauri.js",
+    "icon",
+    "src/assets/quiet-time.png",
+    "--output",
+    ".tools/icon-build",
+  ],
+  { cwd: root, stdio: "inherit" },
+);
+if (result.error) throw result.error;
+if (result.status !== 0) process.exit(result.status ?? 1);
+mkdirSync(new URL("../src-tauri/icons/", import.meta.url), { recursive: true });
+for (const file of ["icon.ico", "32x32.png", "128x128.png", "128x128@2x.png"]) {
+  copyFileSync(
+    new URL(`../.tools/icon-build/${file}`, import.meta.url),
+    new URL(`../src-tauri/icons/${file}`, import.meta.url),
+  );
 }
-const header = Buffer.alloc(22);
-header.writeUInt16LE(1, 2);
-header.writeUInt16LE(1, 4);
-header[6] = size; header[7] = size;
-header.writeUInt16LE(1, 10);
-header.writeUInt16LE(32, 12);
-header.writeUInt32LE(dib.length, 14);
-header.writeUInt32LE(22, 18);
-const directory = new URL('../src-tauri/icons/', import.meta.url);
-mkdirSync(directory, { recursive: true });
-writeFileSync(new URL('icon.ico', directory), Buffer.concat([header, dib]));

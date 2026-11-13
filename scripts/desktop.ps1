@@ -15,7 +15,7 @@ $sourceFiles = @(
     foreach ($relativePath in $sourcePaths) {
         Get-ChildItem -LiteralPath (Join-Path $projectRoot $relativePath) -Recurse -File
     }
-    foreach ($relativePath in @('package.json', 'package-lock.json', 'index.html', 'tsconfig.json', 'src-tauri/Cargo.toml', 'src-tauri/Cargo.lock', 'src-tauri/build.rs', 'src-tauri/tauri.conf.json')) {
+    foreach ($relativePath in @('package.json', 'package-lock.json', 'index.html', 'tsconfig.json', 'vite.config.ts', 'src-tauri/Cargo.toml', 'src-tauri/Cargo.lock', 'src-tauri/build.rs', 'src-tauri/tauri.conf.json')) {
         $sourcePath = Join-Path $projectRoot $relativePath
         if (Test-Path -LiteralPath $sourcePath) { Get-Item -LiteralPath $sourcePath }
     }

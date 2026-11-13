@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Quiet Time: development app",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${workspaceFolder}/scripts/dev-desktop.ps1\"",
+      "cwd": "${workspaceFolder}",
+      "postDebugTask": "Quiet Time: stop development",
+      "env": {
+        "RUST_BACKTRACE": "1",
+        "CARGO_NET_OFFLINE": "true"
+      }
+    }
+  ]
+}

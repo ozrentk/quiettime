@@ -1,0 +1,11 @@
+pub const REPOSITORIES: &str = include_str!("../../sql/git_repositories.sql");
+pub const PROJECT_ID: &str = include_str!("../../sql/git_project_id.sql");
+pub const INSERT_REPOSITORY: &str = include_str!("../../sql/git_insert_repository.sql");
+pub const UPDATE_REPOSITORY: &str = include_str!("../../sql/git_update_repository.sql");
+pub const DELETE_REPOSITORY: &str = include_str!("../../sql/git_delete_repository.sql");
+pub const REVISION: &str = include_str!("../../sql/git_revision.sql");
+pub const CLEAR_COMMITS: &str = include_str!("../../sql/git_clear_commits.sql");
+pub const INSERT_COMMIT: &str = include_str!("../../sql/git_insert_commit.sql");
+pub const SYNC_RESULT: &str = include_str!("../../sql/git_sync_result.sql");
+pub const SYNC_ERROR: &str = include_str!("../../sql/git_sync_error.sql");
+pub const TIMELINE: &str = include_str!("../../sql/git_timeline.sql");

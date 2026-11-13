@@ -8,8 +8,12 @@ import { initManualEntry } from "./ui/manual-entry";
 import { initProjectSelection } from "./ui/project-selection";
 import { initSettings } from "./ui/settings";
 import { initRecords } from "./ui/records";
+import { initQuickNote } from "./ui/quick-note";
+import { initGit } from "./ui/git";
 import { el, input } from "./utils/dom";
+import { initAppearance } from "./ui/appearance";
 
+initAppearance();
 const native = isTauri();
 let data: Dashboard | undefined;
 let busy = false;
@@ -24,7 +28,6 @@ function showError(message: unknown = "") {
 async function run(work: () => Promise<void>) {
   if (busy) return;
   busy = true;
-  el<HTMLButtonElement>("save").disabled = true;
   el<HTMLButtonElement>("manual-save").disabled = true;
   showError();
   try {
@@ -33,7 +36,6 @@ async function run(work: () => Promise<void>) {
     showError(error);
   } finally {
     busy = false;
-    el<HTMLButtonElement>("save").disabled = !native;
     el<HTMLButtonElement>("manual-save").disabled = !native;
     input("startup").disabled = !data?.startupAvailable;
   }
@@ -46,11 +48,13 @@ const context: UIContext = {
   run,
   refresh,
 };
-const defaults = initDefaultValues(context, showError);
+const defaults = initDefaultValues(showError);
+const quickNote = initQuickNote(showError);
 const projects = initProjectSelection(context, defaults.save);
-const manual = initManualEntry(context, defaults, projects);
+const manual = initManualEntry(context, defaults, projects, quickNote);
 const settings = initSettings(context);
-const records = initRecords(context);
+const git = initGit(context);
+const records = initRecords(context, git);
 
 async function refresh() {
   if (!native) return;
@@ -64,6 +68,7 @@ async function refresh() {
   });
   settings.render(data);
   projects.render(data.projects);
+  git.update(data.projects);
   records.render(from.getTime(), to.getTime());
   if (data.shortcutError)
     showError(
@@ -99,17 +104,26 @@ el("titlebar").addEventListener("mousedown", (event) => {
 
 if (native) {
   void refresh().catch(showError);
-  void listen("hud-opened", () => {
+  const hudOpened = listen("hud-opened", () => {
     defaults.updateDuration();
     if (manual.isOpen()) manual.focus();
     else input("project").focus();
     void refresh().catch(showError);
   });
-  void listen("tracking-changed", () => {
+  const trackingChanged = listen("tracking-changed", () => {
     void refresh().catch(showError);
+  });
+  const gitChanged = listen("git-changed", () => {
+    void git.refresh();
   });
   window.setInterval(() => {
     if (!document.hidden) void refresh().catch(showError);
   }, 5000);
   input("project").focus();
+  // Reveal only after styles, controls and event subscriptions are initialized.
+  // Do not wait for dashboard/Git queries or animation frames in a hidden WebView.
+  void Promise.all([hudOpened, trackingChanged, gitChanged])
+    .catch(showError)
+    .then(() => invoke("hud_ready", { frontendMs: performance.now() }))
+    .catch(showError);
 }
