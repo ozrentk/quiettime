@@ -466,7 +466,7 @@ footer {
   margin-bottom: 14px;
   background: var(--surface);
 }
-.quick-note-section h2 {
+.quick-note-section > h2 {
   margin-bottom: 12px;
 }
 
@@ -883,4 +883,124 @@ footer > span:last-child {
 
 #git-dialog-error {
   margin-top: 14px;
+}
+.project-selector {
+  position: relative;
+}
+.project-toggle {
+  flex: 0 0 36px;
+  padding: 8px !important;
+}
+.project-selector .project-picker {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  margin: 0;
+  box-shadow: 0 8px 24px var(--shadow);
+}
+.project-picker button.active {
+  background: var(--selected);
+  color: var(--selected-text);
+}
+.project-picker .project-add-option {
+  border-top: 1px solid var(--border-control);
+  border-radius: 0;
+  margin-top: 4px;
+  padding-top: 12px;
+  color: var(--accent);
+}
+.project-picker .muted {
+  margin: 0 0 8px;
+}
+.activity-app {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+  border-bottom: 1px solid var(--border);
+}
+.activity-app > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 1px;
+  color: var(--text);
+  list-style: none;
+}
+.activity-app > summary::-webkit-details-marker {
+  display: none;
+}
+.activity-app > summary::before {
+  content: "▸";
+  color: var(--muted);
+}
+.activity-app[open] > summary::before {
+  content: "▾";
+}
+.activity-app[open] > summary {
+  margin-bottom: 0;
+}
+.activity-app-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 550;
+  overflow-wrap: anywhere;
+}
+.activity-session-count {
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.activity-session {
+  margin: 0 0 14px 17px;
+  padding: 0 0 0 12px;
+  border-left: 2px solid var(--border-control);
+}
+.activity-session-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0 7px;
+  font-size: 11px;
+  color: var(--secondary);
+}
+.activity-title {
+  padding: 9px 0;
+}
+.activity-title:last-child {
+  border-bottom: 0;
+}
+.activity-title-text {
+  margin: 0;
+  color: var(--text);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.preferences-section {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+section.preferences-section > h2 {
+  margin-bottom: 16px;
+}
+.timing-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 18px;
+}
+.timing-grid .label-with-help {
+  min-height: 28px;
+}
+.timing-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 14px 0 20px;
+}
+@media (max-width: 500px) {
+  .timing-grid {
+    grid-template-columns: 1fr;
+  }
 }

@@ -6,7 +6,7 @@ pub struct Sample {
 }
 
 #[cfg(windows)]
-pub fn sample(capture_titles: bool) -> Result<Sample, String> {
+pub fn sample(capture_titles: bool, idle_seconds: u64) -> Result<Sample, String> {
     use windows::{
         core::PWSTR,
         Win32::{
@@ -35,7 +35,7 @@ pub fn sample(capture_titles: bool) -> Result<Sample, String> {
         if !GetLastInputInfo(&mut input).as_bool() {
             return Err("Windows idle detection is unavailable".into());
         }
-        if GetTickCount().wrapping_sub(input.dwTime) >= 60_000 {
+        if u64::from(GetTickCount().wrapping_sub(input.dwTime)) >= idle_seconds * 1000 {
             return Ok(Sample {
                 app: "Idle".into(),
                 title: String::new(),
@@ -85,6 +85,6 @@ pub fn sample(capture_titles: bool) -> Result<Sample, String> {
 }
 
 #[cfg(not(windows))]
-pub fn sample(_: bool) -> Result<Sample, String> {
+pub fn sample(_: bool, _: u64) -> Result<Sample, String> {
     Err("Activity capture currently requires Windows".into())
 }

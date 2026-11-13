@@ -2,9 +2,12 @@ import { invoke } from "@tauri-apps/api/core";
 import type { Dashboard } from "../types";
 import { el, input } from "../utils/dom";
 import type { UIContext } from "./context";
+import { initTimingSettings } from "./timing-settings";
 
 export function initSettings(context: UIContext) {
+  const timing = initTimingSettings(context);
   function render(data: Dashboard) {
+    timing.render(data.timings);
     el("status").textContent = data.paused
       ? "Tracking paused"
       : data.captureError
@@ -24,6 +27,8 @@ export function initSettings(context: UIContext) {
       input("shortcut").value = data.shortcut;
     el("shortcut-hint").textContent = data.shortcut;
     el("database-path").textContent = data.databasePath;
+    el("activity-help").textContent =
+      `Apps are sampled every ${data.timings.activitySeconds} seconds. After ${data.timings.idleSeconds} seconds without input, time is marked idle. Sleep gaps and time in this panel are skipped. Window titles may contain document or website names; disabling titles affects future records.`;
   }
 
   el("pause").addEventListener(

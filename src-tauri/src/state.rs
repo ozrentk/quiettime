@@ -1,3 +1,4 @@
+use crate::timing::{self, TimingSettings};
 use crate::{platform, store::Store};
 use std::sync::Mutex;
 use tauri::Manager;
@@ -8,6 +9,7 @@ pub(crate) struct Core {
     pub(crate) store: Store,
     pub(crate) paused: bool,
     pub(crate) capture_titles: bool,
+    pub(crate) timings: TimingSettings,
     pub(crate) shortcut: String,
     pub(crate) shortcut_error: Option<String>,
     pub(crate) capture_error: Option<String>,
@@ -31,6 +33,7 @@ pub(crate) fn initialize(app: &tauri::AppHandle) -> Result<bool, Box<dyn std::er
         .setting("paused", "true")
         .map_err(std::io::Error::other)?
         == "true";
+    let timings = timing::load(&store).map_err(std::io::Error::other)?;
     let capture_titles = store
         .setting("capture_titles", "true")
         .map_err(std::io::Error::other)?
@@ -47,6 +50,7 @@ pub(crate) fn initialize(app: &tauri::AppHandle) -> Result<bool, Box<dyn std::er
         store,
         paused,
         capture_titles,
+        timings,
         shortcut,
         shortcut_error,
         capture_error: None,

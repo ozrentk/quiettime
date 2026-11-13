@@ -6,6 +6,7 @@ import type { UIContext } from "../context";
 import { initRepositoryForm } from "./repository-form";
 import { renderGitTimeline } from "./timeline";
 import { showStatus } from "../status";
+import type { ProjectSelectionController } from "../project-selection";
 
 export interface GitController {
   setActive(active: boolean): void;
@@ -15,7 +16,10 @@ export interface GitController {
   focusDialog(): void;
 }
 
-export function initGit(context: UIContext): GitController {
+export function initGit(
+  context: UIContext,
+  projects: ProjectSelectionController,
+): GitController {
   let active = false;
   let pending = false;
   let loading = false;
@@ -144,6 +148,7 @@ export function initGit(context: UIContext): GitController {
   }
 
   const form = initRepositoryForm({
+    projectSelector: projects.register("git-", { run, status }),
     native: context.native,
     run,
     status,
@@ -158,6 +163,7 @@ export function initGit(context: UIContext): GitController {
       selection.value = String(id);
       limit = 100;
       await refresh();
+      await context.refresh();
       status("Repository saved.");
       if (!snapshot.busy) await performImport();
       else
@@ -214,7 +220,7 @@ export function initGit(context: UIContext): GitController {
       projectNames = projects;
       el("git-mode").textContent = context.getData()?.paused
         ? "Tracking paused · Automatic Git imports paused. Refresh now still reads local history."
-        : "Imports local history every minute while tracking is active. No remote requests.";
+        : `Imports local history every ${context.getData()?.timings.gitSeconds ?? 60} seconds while tracking is active. No remote requests.`;
       form.render(snapshot.repositories, projectNames);
       if (active) void refresh();
     },

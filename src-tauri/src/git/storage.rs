@@ -44,12 +44,18 @@ impl Store {
         input: &RepositoryInput,
         inspection: &Inspection,
     ) -> Result<i64, String> {
+        let project_name = input.project.trim();
+        if project_name.is_empty() || project_name.chars().count() > 120 {
+            return Err("Enter a project or task name from 1 to 120 characters".into());
+        }
         let transaction = self.0.unchecked_transaction().map_err(|e| e.to_string())?;
-        let project: Option<i64> = transaction
-            .query_row(sql::PROJECT_ID, [input.project.trim()], |row| row.get(0))
-            .optional()
+        // Create the project in the same transaction: failed repository saves leave no orphan name.
+        transaction
+            .execute(crate::sql::INSERT_PROJECT, [project_name])
             .map_err(|e| e.to_string())?;
-        let project = project.ok_or("Choose a saved project/task first")?;
+        let project: i64 = transaction
+            .query_row(sql::PROJECT_ID, [project_name], |row| row.get(0))
+            .map_err(|e| e.to_string())?;
         let authors = serde_json::to_string(&input.authors).map_err(|e| e.to_string())?;
         let id = if let Some(id) = input.id {
             let changed = transaction

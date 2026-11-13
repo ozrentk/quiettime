@@ -4,7 +4,7 @@ use crate::{
     tray,
     utils::now,
 };
-use std::time::Duration;
+use std::time::Instant;
 use tauri::{Emitter, Manager};
 
 fn pause(core: &mut Core, paused: bool) -> Result<(), String> {
@@ -25,6 +25,7 @@ pub(crate) fn set_paused(
         let mut core = lock(state)?;
         pause(&mut core, paused)?;
     }
+    app.state::<crate::timing::Schedule>().0.notify_all();
     tray::sync(app, paused);
     let _ = app.emit("tracking-changed", ());
     Ok(())
@@ -32,7 +33,9 @@ pub(crate) fn set_paused(
 
 pub(crate) fn spawn(app: tauri::AppHandle) {
     std::thread::spawn(move || loop {
-        std::thread::sleep(Duration::from_secs(5));
+        if !crate::timing::wait(&app, crate::timing::Interval::Activity, Instant::now()) {
+            return;
+        }
         let state = app.state::<State>();
         let Ok(mut core) = lock(&state) else { continue };
         if core.paused {
@@ -40,11 +43,20 @@ pub(crate) fn spawn(app: tauri::AppHandle) {
             continue;
         }
         let timestamp = now();
-        match platform::sample(core.capture_titles) {
+        let previous_error = core.capture_error.clone();
+        match platform::sample(core.capture_titles, core.timings.idle_seconds) {
             Ok(current) => {
                 if let Some((start, previous)) = core.previous.take() {
-                    if let Err(error) = core.store.record(start, timestamp, &previous) {
+                    if let Err(error) = core.store.record_with_gap(
+                        start,
+                        timestamp,
+                        &previous,
+                        core.timings.max_gap_ms(),
+                    ) {
                         core.capture_error = Some(format!("Activity could not be saved: {error}"));
+                        if previous_error != core.capture_error {
+                            let _ = app.emit("capture-health-changed", ());
+                        }
                         continue;
                     }
                 }
@@ -55,6 +67,9 @@ pub(crate) fn spawn(app: tauri::AppHandle) {
                 core.previous = None;
                 core.capture_error = Some(error);
             }
+        }
+        if previous_error != core.capture_error {
+            let _ = app.emit("capture-health-changed", ());
         }
     });
 }

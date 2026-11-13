@@ -11,6 +11,7 @@ mod sql;
 mod startup;
 mod state;
 mod store;
+mod timing;
 mod tray;
 mod utils;
 
@@ -20,6 +21,7 @@ use tauri_plugin_global_shortcut::ShortcutState;
 fn main() {
     tauri::Builder::default()
         .manage(hud::HudState::default())
+        .manage(timing::Schedule::default())
         .manage(git::service::ImportState::default())
         .plugin(tauri_plugin_single_instance::init(|app, args, _| {
             if !startup::is_background(args) {
@@ -59,6 +61,7 @@ fn main() {
         })
         .invoke_handler(tauri::generate_handler![
             commands::dashboard,
+            timing::set_timing,
             hud::hud_ready,
             commands::add_entry,
             commands::save_project,

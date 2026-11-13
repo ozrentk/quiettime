@@ -36,7 +36,7 @@ Quiet Time**, **Start tracking**, **Stop tracking**, and **Quit**. The icon is
 green while tracking and amber while stopped; its tooltip also shows the state.
 Start/Stop changes activity capture without exiting the app. If Windows puts the
 icon under the taskbar's **^** overflow menu, drag it into the visible tray area.
-Under **Preferences & local storage**, enable **Start with Windows, hidden in
+Under **Preferences**, enable **Start with Windows, hidden in
 the tray** in the standalone app. This registers only the current Windows user
 and starts the saved executable directly at sign-in with `--background`; it does
 not launch npm, Cargo, Vite, or a terminal. Disable the checkbox to remove the
@@ -54,13 +54,31 @@ The records area has three tabs: **Entries** for manually entered time,
 **Git** for commit history, and **Activity** for foreground app/window activity.
 Git commits do not create time entries or link to manual entries.
 
+In General, type a Quick note and press Enter to save a manual time entry using
+the selected project/task and time slot, ending now. A successful save clears
+the note and updates Entries. Failed saves keep the draft. The Manual entry
+button remains available for choosing exact start and end times.
+
+Activity is grouped into expandable app sections with total recorded time.
+Each section shows separate time blocks for returning to the app, idle breaks,
+or capture gaps. Consecutive repeated titles within a block are combined. Slack
+notification counters are ignored for display; the original titles remain in
+the database. Expanded sections stay expanded across dashboard refreshes.
+
 In **Git**, choose **Add repository** to open the repository dialog, then type a
 path or choose **Browse folder**. **Edit** opens the same dialog with saved
 settings. Cancel or Escape discards changes; saving closes it and starts import.
 **Read Git settings** validates the path, resolves its repository root,
 and reads configured `user.email` values. Previously added folders appear in the
 path suggestions and repository selector; external editor/client history is not
-scanned. Choose a saved project/task for the repository.
+scanned. Choose an existing project/task from the suggestions or type a new name.
+General, Manual entry, and the repository dialog use one shared project selector:
+open the dropdown for saved projects, type to filter, or choose **Add new
+project/task…**. A typed new name offers **Add “name”**. Arrow keys select an
+option, Enter chooses/adds it, and Escape closes the dropdown before the dialog.
+Adding through the selector saves only the project/task and refreshes all three
+pickers. New names can also be saved atomically with the repository; Cancel
+discards names that have not been saved.
 
 **Import commits from** initially uses Monday of the current local week at
 midnight. The selected calendar date and cutoff are saved per repository and do
@@ -68,7 +86,8 @@ not roll forward automatically. Author emails default to the repository's Git
 configuration and can be edited; **All authors** disables author filtering.
 
 Saving a repository starts a local import. A separate worker refreshes local
-history every minute while tracking is active. **Refresh now** also works while
+history every minute by default while tracking is active. Change the interval
+under **Preferences → Timing**. **Refresh now** also works while
 tracking is paused. Only locally available refs are read, including local
 branches and already-present remote-tracking refs. The app never fetches, pulls,
 contacts origin, or changes repository files. Empty repositories are supported.
@@ -120,10 +139,11 @@ The app remembers the tracking preference across launches.
   dialog without saving; Escape closes an open project picker first. Focus
   returns to the Manual entry button. Tab stays within the open modal.
 - Overlapping manual entries are rejected; remove an incorrect entry and re-enter it.
-- Windows capture samples foreground process name and optional window title every
-  five seconds. After 60 seconds without input, samples are labelled idle.
+- By default, Windows capture samples foreground process name and optional window
+  title every five seconds. After 60 seconds without input, samples are labelled idle.
 - Sampling is approximate: transitions may differ by up to one sampling interval.
-  Long gaps over ten seconds, inaccessible windows, and the HUD itself are skipped.
+  Gaps longer than twice the configured sampling interval, inaccessible windows,
+  and the HUD itself are skipped.
 - Raw activity and manual entries are separate tables; capture does not yet infer
   projects or generate timesheets.
 - Data stays in the local application data directory, in `quiet-time.sqlite3`.
@@ -133,6 +153,15 @@ The app remembers the tracking preference across launches.
   network upload, or Calendar integration are implemented.
 
 ## Development
+
+**Preferences → Timing** saves Git import, activity sampling, idle threshold,
+and HUD refresh intervals in SQLite. Defaults are 60, 5, 60, and 5 seconds,
+respectively. Changes apply without restart; the workers use condition-variable
+notifications to recalculate their deadlines. Pausing/resuming tracking wakes
+the workers, and HUD refreshes are suspended while the window is hidden.
+Unsaved timing edits survive dashboard refreshes; invalid values are rejected.
+Capture/shortcut health warnings are separate from action errors and clear when
+the corresponding condition recovers.
 
 Frontend markup lives in `index.html`, behavior in `src/main.ts`, and styles in
 the formatted `src/style.css`. Rust database operations use named queries from
@@ -147,7 +176,10 @@ UI controllers live in `src/ui/`: `default-values.ts`, `manual-entry.ts`,
 top-level General, Entries, Git, Activity, and Preferences navigation, keyboard
 navigation, and per-panel scroll positions. General opens first; switching tabs
 keeps unsaved form values. `tooltips.ts` handles the information icons next to
-labels (hover, focus, or click; Escape dismisses), while `status.ts` sends action
+labels (hover, focus, or click; Escape dismisses). `project-selector.ts` mounts
+the shared HTML template and owns filtering, selection, adding, and keyboard
+interaction; `project-selection.ts` shares project data and save callbacks
+between the three instances. `status.ts` sends action
 confirmations to the footer. Errors remain visible next to the relevant controls.
 Controllers receive a shared `UIContext`
 for refreshes and serialized actions. `src/main.ts` initializes the controllers,

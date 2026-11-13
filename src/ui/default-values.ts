@@ -67,7 +67,6 @@ export function initDefaultValues(
   input("minutes").addEventListener("input", () =>
     setMinutes(input("minutes").valueAsNumber),
   );
-  input("project").addEventListener("input", save);
   el("entry-form").addEventListener("submit", (event) =>
     event.preventDefault(),
   );

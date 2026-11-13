@@ -15,11 +15,19 @@ export interface Activity {
   end: number;
 }
 
+export interface TimingSettings {
+  activitySeconds: number;
+  idleSeconds: number;
+  gitSeconds: number;
+  refreshSeconds: number;
+}
+
 export interface Dashboard {
   startupEnabled: boolean;
   startupAvailable: boolean;
   paused: boolean;
   captureTitles: boolean;
+  timings: TimingSettings;
   shortcut: string;
   shortcutError: string | null;
   captureError: string | null;

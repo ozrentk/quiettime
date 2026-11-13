@@ -14,7 +14,11 @@ import { el, input } from "./utils/dom";
 import { initAppearance } from "./ui/appearance";
 import { initTabs } from "./ui/tabs";
 import { initTooltips } from "./ui/tooltips";
+import { mountProjectSelectors } from "./ui/project-selector";
+import { initDashboardRefresh } from "./ui/dashboard-refresh";
+import { renderCaptureHealth } from "./ui/capture-health";
 
+mountProjectSelectors();
 initAppearance();
 initTooltips();
 const native = isTauri();
@@ -47,6 +51,7 @@ async function run(work: () => Promise<void>) {
     busy = false;
     el<HTMLButtonElement>("manual-save").disabled = !native;
     input("startup").disabled = !data?.startupAvailable;
+    if (data) settings.render(data);
   }
 }
 
@@ -58,12 +63,13 @@ const context: UIContext = {
   refresh,
 };
 const defaults = initDefaultValues(showError);
-const quickNote = initQuickNote(showError);
+const quickNote = initQuickNote(context, defaults, showError);
 const projects = initProjectSelection(context, defaults.save);
 const manual = initManualEntry(context, defaults, projects, quickNote);
 const settings = initSettings(context);
-const git = initGit(context);
+const git = initGit(context, projects);
 const records = initRecords(context);
+const autoRefresh = initDashboardRefresh(() => refresh().catch(showError));
 const tabs = initTabs((section) => {
   projects.close();
   git.setActive(section === "git");
@@ -83,11 +89,8 @@ async function refresh() {
   projects.render(data.projects);
   git.update(data.projects);
   records.render(from.getTime(), to.getTime());
-  if (data.shortcutError)
-    showError(
-      `Shortcut unavailable: ${data.shortcutError}. You can change it below or open from the tray.`,
-    );
-  else if (data.captureError) showError(`Capture: ${data.captureError}`);
+  renderCaptureHealth(data);
+  autoRefresh.setSeconds(data.timings.refreshSeconds);
 }
 
 el("today").textContent = new Date().toLocaleDateString([], {
@@ -130,13 +133,23 @@ if (native) {
   const gitChanged = listen("git-changed", () => {
     void git.refresh();
   });
-  window.setInterval(() => {
-    if (!document.hidden) void refresh().catch(showError);
-  }, 5000);
+  const captureHealth = listen("capture-health-changed", () => {
+    void refresh().catch(showError);
+  });
+  const timingChanged = listen("timing-changed", () => {
+    void refresh().catch(showError);
+  });
+  autoRefresh.start();
   input("project").focus();
   // Reveal only after styles, controls and event subscriptions are initialized.
   // Do not wait for dashboard/Git queries or animation frames in a hidden WebView.
-  void Promise.all([hudOpened, trackingChanged, gitChanged])
+  void Promise.all([
+    hudOpened,
+    trackingChanged,
+    gitChanged,
+    captureHealth,
+    timingChanged,
+  ])
     .catch(showError)
     .then(() => invoke("hud_ready", { frontendMs: performance.now() }))
     .catch(showError);

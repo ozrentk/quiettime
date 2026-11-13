@@ -91,6 +91,12 @@
           Browser preview · desktop capture and saving are available in the
           Windows app.
         </div>
+        <div
+          id="health-warning"
+          class="notice error"
+          role="status"
+          hidden=""
+        ></div>
         <div id="error" role="alert" class="notice error" hidden=""></div>
 
         <section
@@ -145,41 +151,13 @@
                     id="info-tooltip-2"
                     hidden=""
                     role="tooltip"
-                    >Press Enter to save this project/task without logging
-                    time.</span
+                    >Choose a saved project/task or type a name and choose Add.
+                    Enter saves only the project/task.</span
                   ></span
                 >
               </div>
-              <div class="project-row">
-                <input
-                  id="project"
-                  name="project"
-                  placeholder="Type a project or task…"
-                  maxlength="120"
-                  list="projects"
-                  required=""
-                  autocomplete="off"
-                /><button
-                  type="button"
-                  id="browse-projects"
-                  class="small-button"
-                  aria-expanded="false"
-                  aria-controls="project-picker"
-                >
-                  Browse projects ▾
-                </button>
-              </div>
-              <datalist id="projects"></datalist>
+              <div data-project-selector="" data-prefix=""></div>
 
-              <div
-                id="project-picker"
-                class="project-picker"
-                role="region"
-                aria-label="Recorded projects"
-                hidden=""
-              >
-                <div id="project-options"></div>
-              </div>
               <fieldset class="slot-field">
                 <legend id="duration-label">Time slot</legend>
                 <div
@@ -253,9 +231,30 @@
             class="quick-note-section"
             aria-labelledby="quick-note-heading"
           >
-            <h2 id="quick-note-heading">
-              Quick note <span class="optional">optional</span>
-            </h2>
+            <div class="label-with-help heading-with-help">
+              <h2 id="quick-note-heading">
+                Quick note <span class="optional">optional</span>
+              </h2>
+              <span class="help"
+                ><button
+                  type="button"
+                  class="info-button"
+                  aria-label="About Quick note"
+                  aria-describedby="quick-note-help"
+                  aria-controls="quick-note-help"
+                  aria-expanded="false"
+                >
+                  i</button
+                ><span
+                  id="quick-note-help"
+                  class="info-tooltip"
+                  role="tooltip"
+                  hidden=""
+                  >Press Enter to save an entry using the selected project and
+                  time slot, ending now.</span
+                ></span
+              >
+            </div>
             <input
               id="note"
               aria-labelledby="quick-note-heading"
@@ -476,14 +475,14 @@
                 type="button"
                 class="info-button"
                 aria-label="About Include window titles in future activity"
-                aria-describedby="info-tooltip-11"
-                aria-controls="info-tooltip-11"
+                aria-describedby="activity-help"
+                aria-controls="activity-help"
                 aria-expanded="false"
               >
                 i</button
               ><span
                 class="info-tooltip"
-                id="info-tooltip-11"
+                id="activity-help"
                 hidden=""
                 role="tooltip"
                 >Apps are sampled every 5 seconds. After 60 seconds without
@@ -528,7 +527,157 @@
             </div>
           </form>
 
-          <div class="label-with-help heading-with-help">
+          <section class="preferences-section">
+            <h2>Timing</h2>
+            <form id="timing-form">
+              <div class="timing-grid">
+                <div>
+                  <div class="label-with-help">
+                    <label for="git-seconds"
+                      >Git import interval (seconds)</label
+                    ><span class="help"
+                      ><button
+                        class="info-button"
+                        type="button"
+                        aria-label="About Git import interval"
+                        aria-describedby="git-seconds-help"
+                        aria-controls="git-seconds-help"
+                        aria-expanded="false"
+                      >
+                        i</button
+                      ><span
+                        class="info-tooltip"
+                        id="git-seconds-help"
+                        role="tooltip"
+                        hidden=""
+                        >Seconds between local Git imports while tracking is
+                        active. No remote requests. Range: 15–86400
+                        seconds.</span
+                      ></span
+                    >
+                  </div>
+                  <input
+                    id="git-seconds"
+                    type="number"
+                    min="15"
+                    max="86400"
+                    step="1"
+                    value="60"
+                    required=""
+                  />
+                </div>
+                <div>
+                  <div class="label-with-help">
+                    <label for="activity-seconds"
+                      >Activity sampling interval (seconds)</label
+                    ><span class="help"
+                      ><button
+                        class="info-button"
+                        type="button"
+                        aria-label="About Activity sampling interval"
+                        aria-describedby="activity-seconds-help"
+                        aria-controls="activity-seconds-help"
+                        aria-expanded="false"
+                      >
+                        i</button
+                      ><span
+                        class="info-tooltip"
+                        id="activity-seconds-help"
+                        role="tooltip"
+                        hidden=""
+                        >Seconds between foreground app/window samples. Longer
+                        intervals reduce tracking precision. Range: 1–60
+                        seconds.</span
+                      ></span
+                    >
+                  </div>
+                  <input
+                    id="activity-seconds"
+                    type="number"
+                    min="1"
+                    max="60"
+                    step="1"
+                    value="5"
+                    required=""
+                  />
+                </div>
+                <div>
+                  <div class="label-with-help">
+                    <label for="idle-seconds">Idle threshold (seconds)</label
+                    ><span class="help"
+                      ><button
+                        class="info-button"
+                        type="button"
+                        aria-label="About Idle threshold"
+                        aria-describedby="idle-seconds-help"
+                        aria-controls="idle-seconds-help"
+                        aria-expanded="false"
+                      >
+                        i</button
+                      ><span
+                        class="info-tooltip"
+                        id="idle-seconds-help"
+                        role="tooltip"
+                        hidden=""
+                        >Seconds without input before activity is marked idle.
+                        Must be at least the sampling interval. Range: 15–3600
+                        seconds.</span
+                      ></span
+                    >
+                  </div>
+                  <input
+                    id="idle-seconds"
+                    type="number"
+                    min="15"
+                    max="3600"
+                    step="1"
+                    value="60"
+                    required=""
+                  />
+                </div>
+                <div>
+                  <div class="label-with-help">
+                    <label for="refresh-seconds"
+                      >HUD refresh interval (seconds)</label
+                    ><span class="help"
+                      ><button
+                        class="info-button"
+                        type="button"
+                        aria-label="About HUD refresh interval"
+                        aria-describedby="refresh-seconds-help"
+                        aria-controls="refresh-seconds-help"
+                        aria-expanded="false"
+                      >
+                        i</button
+                      ><span
+                        class="info-tooltip"
+                        id="refresh-seconds-help"
+                        role="tooltip"
+                        hidden=""
+                        >Seconds between dashboard refreshes while the HUD is
+                        visible. Range: 1–60 seconds.</span
+                      ></span
+                    >
+                  </div>
+                  <input
+                    id="refresh-seconds"
+                    type="number"
+                    min="1"
+                    max="60"
+                    step="1"
+                    value="5"
+                    required=""
+                  />
+                </div>
+              </div>
+              <div class="timing-actions">
+                <button id="timing-save" class="small-button" type="submit">
+                  Apply timing settings
+                </button>
+              </div>
+            </form>
+          </section>
+          <div class="label-with-help heading-with-help preferences-section">
             <h2>Local storage</h2>
             <span class="help"
               ><button
@@ -618,14 +767,12 @@
                 id="info-tooltip-8"
                 hidden=""
                 role="tooltip"
-                >Save a project/task in Default values first if it is missing
-                here.</span
+                >Choose a saved project/task or type a name and choose Add.
+                Enter saves only the project/task.</span
               ></span
             >
           </div>
-          <select id="git-project" required="">
-            <option value="">Choose a saved project/task</option>
-          </select>
+          <div data-project-selector="" data-prefix="git-"></div>
 
           <div class="label-with-help">
             <label for="git-from">Import commits from</label
@@ -750,44 +897,13 @@
                 id="info-tooltip-3"
                 hidden=""
                 role="tooltip"
-                >Press Enter to save this project/task without logging
-                time.</span
+                >Choose a saved project/task or type a name and choose Add.
+                Enter saves only the project/task.</span
               ></span
             >
           </div>
-          <div class="project-row">
-            <input
-              id="manual-project"
-              placeholder="Type a project or task…"
-              maxlength="120"
-              list="projects"
-              required=""
-              autocomplete="off"
-            /><button
-              type="button"
-              id="manual-browse-projects"
-              class="small-button"
-              aria-expanded="false"
-              aria-controls="manual-project-picker"
-            >
-              Browse projects ▾
-            </button>
-          </div>
-          <p
-            id="manual-project-status"
-            class="project-status"
-            role="status"
-            aria-live="polite"
-          ></p>
-          <div
-            id="manual-project-picker"
-            class="project-picker"
-            role="region"
-            aria-label="Recorded projects"
-            hidden=""
-          >
-            <div id="manual-project-options"></div>
-          </div>
+          <div data-project-selector="" data-prefix="manual-"></div>
+
           <fieldset class="slot-field">
             <legend>Time spent</legend>
             <div
@@ -865,6 +981,38 @@
         </form>
       </dialog>
     </div>
+    <template id="project-selector-template"
+      ><div class="project-selector">
+        <div class="project-row">
+          <input
+            class="project-input"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-haspopup="listbox"
+            aria-expanded="false"
+            placeholder="Select or add a project/task…"
+            maxlength="120"
+            autocomplete="off"
+            required=""
+          /><button
+            class="small-button project-toggle"
+            type="button"
+            aria-label="Show saved projects"
+            aria-haspopup="listbox"
+            aria-expanded="false"
+          >
+            ▾
+          </button>
+        </div>
+        <div class="project-picker" hidden="">
+          <div
+            class="project-options"
+            role="listbox"
+            aria-label="Saved projects and tasks"
+          ></div>
+        </div>
+        <p class="project-status" role="status" aria-live="polite"></p></div
+    ></template>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

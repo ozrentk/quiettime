@@ -12,6 +12,44 @@ use std::{
 static NEXT_ID: AtomicUsize = AtomicUsize::new(0);
 const SINCE: i64 = 1_700_000_000_000;
 
+#[test]
+fn repository_project_creation_is_atomic_and_case_insensitive() {
+    let store = Store::new(rusqlite::Connection::open_in_memory().unwrap()).unwrap();
+    let inspection = super::models::Inspection {
+        path: "C:/test/repository".into(),
+        name: "Repository".into(),
+        authors: vec![],
+    };
+    let mut input = RepositoryInput {
+        id: None,
+        path: inspection.path.clone(),
+        project: "  New project  ".into(),
+        import_from: "2023-11-14".into(),
+        since: SINCE,
+        authors: vec![],
+        all_authors: true,
+    };
+    let id = store.git_save_repository(&input, &inspection).unwrap();
+    assert_eq!(store.projects().unwrap(), vec!["New project"]);
+    assert_eq!(store.git_repositories().unwrap()[0].project, "New project");
+    assert!(store.entries(0, i64::MAX).unwrap().is_empty());
+
+    input.id = Some(id);
+    input.project = "new PROJECT".into();
+    store.git_save_repository(&input, &inspection).unwrap();
+    assert_eq!(store.projects().unwrap(), vec!["New project"]);
+
+    input.id = Some(i64::MAX);
+    input.project = "Must roll back".into();
+    assert!(store.git_save_repository(&input, &inspection).is_err());
+    assert_eq!(store.projects().unwrap(), vec!["New project"]);
+
+    for invalid in ["   ".to_string(), "a".repeat(121)] {
+        input.project = invalid;
+        assert!(store.git_save_repository(&input, &inspection).is_err());
+    }
+}
+
 struct TestRepo(PathBuf);
 impl TestRepo {
     fn new() -> Self {

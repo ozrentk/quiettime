@@ -157,8 +157,19 @@ impl Store {
         rows.collect::<Result<_, _>>().map_err(|e| e.to_string())
     }
 
+    #[cfg(test)]
     pub fn record(&self, start: i64, end: i64, sample: &Sample) -> Result<(), String> {
-        if sample.kind == "hud" || end <= start || end - start > 10_000 {
+        self.record_with_gap(start, end, sample, 10_000)
+    }
+
+    pub fn record_with_gap(
+        &self,
+        start: i64,
+        end: i64,
+        sample: &Sample,
+        max_gap_ms: i64,
+    ) -> Result<(), String> {
+        if sample.kind == "hud" || end <= start || end - start > max_gap_ms {
             return Ok(());
         }
         let last: Option<(i64, String, String, String, i64)> = self
@@ -278,5 +289,22 @@ mod tests {
         assert_eq!(rows.len(), 2);
         assert_eq!(rows[1].end, 10_000);
         assert_eq!(db.activity(2_000, 7_000).unwrap()[0].end, 7_000);
+    }
+
+    #[test]
+    fn slower_capture_intervals_are_recorded_but_sleep_gaps_are_skipped() {
+        let db = store();
+        let sample = Sample {
+            app: "editor.exe".into(),
+            title: "Work".into(),
+            kind: "active".into(),
+        };
+        db.record_with_gap(0, 30_000, &sample, 60_000).unwrap();
+        db.record_with_gap(30_000, 60_000, &sample, 60_000).unwrap();
+        db.record_with_gap(60_000, 180_000, &sample, 60_000)
+            .unwrap();
+        let rows = db.activity(0, 200_000).unwrap();
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].end, 60_000);
     }
 }

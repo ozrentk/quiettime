@@ -9,7 +9,7 @@ use crate::{
 use std::{
     sync::atomic::{AtomicBool, Ordering},
     thread,
-    time::{Duration, Instant},
+    time::Instant,
 };
 use tauri::{Emitter, Manager};
 
@@ -154,7 +154,9 @@ pub(crate) fn spawn(app: tauri::AppHandle) {
         if active {
             let _ = sync(&app, None, true);
         }
-        thread::sleep(Duration::from_secs(60).saturating_sub(started.elapsed()));
+        if !crate::timing::wait(&app, crate::timing::Interval::Git, started) {
+            break;
+        }
     });
 }
 

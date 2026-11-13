@@ -6,22 +6,23 @@ import {
 import { currentWeekStart, dateValue, localDayRange } from "../../git/dates";
 import type { GitRepository } from "../../git/types";
 import { el, input } from "../../utils/dom";
+import type { ProjectSelector } from "../project-selector";
 
 interface FormContext {
   native: boolean;
   run(work: () => Promise<void>): Promise<void>;
   saved(id: number): Promise<void>;
   status(message: string, error?: boolean): void;
+  projectSelector: ProjectSelector;
 }
 
 export function initRepositoryForm(context: FormContext) {
   const dialog = el<HTMLDialogElement>("git-dialog");
   const form = el<HTMLFormElement>("git-repository-form");
-  const project = el<HTMLSelectElement>("git-project");
+  const project = input("git-project");
   let editingId: number | null = null;
   let repositories: GitRepository[] = [];
   let busy = false;
-  let hasProjects = false;
   let opener: HTMLElement | null = null;
 
   const focus = () => input("git-path").focus();
@@ -34,6 +35,7 @@ export function initRepositoryForm(context: FormContext) {
   }
 
   function dismiss() {
+    context.projectSelector.close();
     dialog.close();
     if (opener instanceof HTMLButtonElement && opener.disabled)
       el("git-tab").focus();
@@ -53,8 +55,8 @@ export function initRepositoryForm(context: FormContext) {
       field.disabled = value;
     input("git-authors").disabled = value || input("git-all-authors").checked;
     for (const id of ["git-save", "git-inspect", "git-browse"])
-      el<HTMLButtonElement>(id).disabled =
-        value || !context.native || (id === "git-save" && !hasProjects);
+      el<HTMLButtonElement>(id).disabled = value || !context.native;
+    context.projectSelector.setDisabled(value);
   }
 
   function reset() {
@@ -82,21 +84,7 @@ export function initRepositoryForm(context: FormContext) {
   function render(values: GitRepository[], projects: string[]) {
     input("git-from").max = dateValue();
     repositories = values;
-    hasProjects = projects.length > 0;
-    const selected = project.value;
-    project.replaceChildren(
-      Object.assign(document.createElement("option"), {
-        value: "",
-        textContent: "Choose a saved project/task",
-      }),
-      ...projects.map((name) =>
-        Object.assign(document.createElement("option"), {
-          value: name,
-          textContent: name,
-        }),
-      ),
-    );
-    project.value = selected || input("project").value;
+    context.projectSelector.render(projects);
     el("git-recent-paths").replaceChildren(
       ...values.map((repo) =>
         Object.assign(document.createElement("option"), {
@@ -151,7 +139,8 @@ export function initRepositoryForm(context: FormContext) {
     el(id).addEventListener("click", close);
   dialog.addEventListener("cancel", (event) => {
     event.preventDefault();
-    close();
+    if (context.projectSelector.isOpen()) context.projectSelector.close();
+    else close();
   });
   form.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -161,7 +150,7 @@ export function initRepositoryForm(context: FormContext) {
       const id = await saveRepository({
         id: editingId,
         path: input("git-path").value.trim(),
-        project: project.value,
+        project: project.value.trim(),
         importFrom,
         since: localDayRange(importFrom).from,
         authors: input("git-authors")

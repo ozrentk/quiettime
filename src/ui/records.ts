@@ -2,25 +2,17 @@ import { invoke } from "@tauri-apps/api/core";
 import { el, textNode } from "../utils/dom";
 import { formatTime as time, formatDuration as duration } from "../utils/time";
 import type { UIContext } from "./context";
+import { initActivity } from "./activity";
+
 export function initRecords(context: UIContext) {
-  function renderList(tab: "entries" | "activity") {
+  const activity = initActivity();
+  function renderEntries() {
     const data = context.getData();
-    const list = el(tab + "-records");
+    const list = el("entries-records");
     list.replaceChildren();
-    const rows =
-      tab === "entries" ? (data?.entries ?? []) : (data?.activity ?? []);
+    const rows = data?.entries ?? [];
     if (!rows.length) {
-      list.append(
-        textNode(
-          "p",
-          tab === "entries"
-            ? "Manual entries will appear here."
-            : data?.paused
-              ? "Start tracking to record activity."
-              : "No activity recorded yet.",
-          "empty",
-        ),
-      );
+      list.append(textNode("p", "Manual entries will appear here.", "empty"));
       return;
     }
     for (const row of rows) {
@@ -28,13 +20,8 @@ export function initRecords(context: UIContext) {
       item.className = "record";
       const content = document.createElement("div");
       content.className = "record-content";
-      const entry = "project" in row;
-      content.append(textNode("strong", entry ? row.project : row.app));
-      const subtitle = entry
-        ? row.note
-        : row.kind === "idle"
-          ? "No input for 60+ seconds"
-          : row.title;
+      content.append(textNode("strong", row.project));
+      const subtitle = row.note;
       if (subtitle) content.append(textNode("p", subtitle, "record-note"));
       content.append(
         textNode(
@@ -47,7 +34,7 @@ export function initRecords(context: UIContext) {
         content,
         textNode("span", duration(row.end - row.start), "record-duration"),
       );
-      if (entry) {
+      {
         const remove = document.createElement("button");
         remove.className = "delete";
         remove.textContent = "×";
@@ -73,10 +60,16 @@ export function initRecords(context: UIContext) {
       el("total").textContent =
         `${duration(data.entries.reduce((sum, entry) => sum + Math.max(0, Math.min(entry.end, to) - Math.max(entry.start, from)), 0))} logged`;
     }
-    renderList("entries");
-    renderList("activity");
+    renderEntries();
+    activity.render(
+      context.getData()?.activity ?? [],
+      context.getData()?.paused ?? true,
+    );
   }
-  renderList("entries");
-  renderList("activity");
+  renderEntries();
+  activity.render(
+    context.getData()?.activity ?? [],
+    context.getData()?.paused ?? true,
+  );
   return { render: updateTotals };
 }
