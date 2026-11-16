@@ -6,6 +6,11 @@ export interface Entry {
   end: number;
 }
 
+export interface SavedEntry {
+  id: number;
+  overlaps: boolean;
+}
+
 export interface Activity {
   id: number;
   app: string;
@@ -33,6 +38,7 @@ export interface Dashboard {
   captureError: string | null;
   databasePath: string;
   entries: Entry[];
+  recentEntries: Entry[];
   projects: string[];
   activity: Activity[];
 }

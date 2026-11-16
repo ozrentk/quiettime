@@ -8,3 +8,5 @@ mod sql;
 mod storage;
 #[cfg(test)]
 mod tests;
+
+pub(crate) use models::TimelineCommit;

@@ -5,6 +5,7 @@ import { el, input } from "../../utils/dom";
 import type { UIContext } from "../context";
 import { initRepositoryForm } from "./repository-form";
 import { renderGitTimeline } from "./timeline";
+import { getPreviewSettings } from "../preview-settings";
 import { showStatus } from "../status";
 import type { ProjectSelectionController } from "../project-selection";
 
@@ -14,6 +15,7 @@ export interface GitController {
   refresh(): Promise<void>;
   isDialogOpen(): boolean;
   focusDialog(): void;
+  previewDate(): number | undefined;
 }
 
 export function initGit(
@@ -24,7 +26,7 @@ export function initGit(
   let pending = false;
   let loading = false;
   let loadAgain = false;
-  let limit = 100;
+  let limit = getPreviewSettings().git;
   let projectNames: string[] = [];
   let snapshot: GitSnapshot = {
     repositories: [],
@@ -125,7 +127,7 @@ export function initGit(
             ? String(repositoryId)
             : "";
         form.render(snapshot.repositories, projectNames);
-        renderGitTimeline(snapshot, limit);
+        renderGitTimeline(snapshot);
         controls();
       } while (loadAgain && active);
     } catch (error) {
@@ -161,7 +163,7 @@ export function initGit(
         }),
       );
       selection.value = String(id);
-      limit = 100;
+      limit = getPreviewSettings().git;
       await refresh();
       await context.refresh();
       status("Repository saved.");
@@ -194,18 +196,15 @@ export function initGit(
       }),
   );
   const filterChanged = () => {
-    limit = 100;
+    limit = getPreviewSettings().git;
     void refresh();
   };
   selection.addEventListener("change", filterChanged);
   input("git-day").addEventListener("change", filterChanged);
-  el("git-more").addEventListener("click", () => {
-    limit = Math.min(1000, limit + 100);
-    void refresh();
-  });
   controls();
 
   return {
+    previewDate: () => snapshot.commits[0]?.committedAt,
     isDialogOpen: form.isOpen,
     focusDialog: form.focus,
     setActive(value) {
@@ -217,6 +216,7 @@ export function initGit(
       }
     },
     update(projects) {
+      limit = getPreviewSettings().git;
       projectNames = projects;
       el("git-mode").textContent = context.getData()?.paused
         ? "Tracking paused · Automatic Git imports paused. Refresh now still reads local history."

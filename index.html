@@ -1,13 +1,21 @@
 <!doctype html>
+
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>Quiet Time</title>
+
     <link rel="icon" type="image/png" href="/src/assets/quiet-time.png" />
+
     <link rel="stylesheet" href="/src/themes.css" />
+
     <link rel="stylesheet" href="/src/style.css" />
+    <link rel="stylesheet" href="/src/timeline.css" />
   </head>
+
   <body>
     <div id="app">
       <header id="titlebar">
@@ -19,6 +27,7 @@
             draggable="false"
           /><span>quiet time</span>
         </div>
+
         <button
           id="hide"
           class="icon-button"
@@ -28,6 +37,7 @@
           −
         </button>
       </header>
+
       <nav class="app-tabs" role="tablist" aria-label="Quiet Time sections">
         <button
           type="button"
@@ -37,16 +47,16 @@
           aria-controls="general-panel"
           tabindex="0"
         >
-          General</button
+          Manual entries</button
         ><button
           type="button"
-          id="entries-tab"
+          id="timeline-tab"
           role="tab"
           aria-selected="false"
-          aria-controls="entries-panel"
+          aria-controls="timeline-panel"
           tabindex="-1"
         >
-          Entries</button
+          Timeline</button
         ><button
           type="button"
           id="git-tab"
@@ -76,27 +86,24 @@
           Preferences
         </button>
       </nav>
+
       <main>
         <div class="eyebrow">
           <span id="today"></span>
         </div>
-        <section class="capture-bar">
-          <span class="status"
-            ><i id="status-dot"></i><span id="status">Connecting…</span></span
-          ><button id="pause" class="small-button" disabled="">
-            Start tracking
-          </button>
-        </section>
+
         <div id="preview" class="notice" hidden="">
           Browser preview · desktop capture and saving are available in the
           Windows app.
         </div>
+
         <div
           id="health-warning"
           class="notice error"
           role="status"
           hidden=""
         ></div>
+
         <div id="error" role="alert" class="notice error" hidden=""></div>
 
         <section
@@ -108,11 +115,14 @@
         >
           <div class="section-heading">
             <h1>What are you working on?</h1>
+
             <span id="shortcut-hint" class="key-hint">Ctrl + Alt + T</span>
           </div>
+
           <section class="defaults-section" aria-labelledby="defaults-heading">
             <div class="label-with-help heading-with-help">
               <h2 id="defaults-heading">Default values</h2>
+
               <span class="help"
                 ><button
                   type="button"
@@ -156,10 +166,12 @@
                   ></span
                 >
               </div>
+
               <div data-project-selector="" data-prefix=""></div>
 
               <fieldset class="slot-field">
                 <legend id="duration-label">Time slot</legend>
+
                 <div
                   class="slot-presets"
                   role="group"
@@ -191,6 +203,7 @@
                     8h
                   </button>
                 </div>
+
                 <div class="custom-duration">
                   <div class="label-with-help">
                     <label for="minutes">Custom minutes</label
@@ -213,6 +226,7 @@
                       ></span
                     >
                   </div>
+
                   <input
                     id="minutes"
                     type="number"
@@ -227,6 +241,7 @@
               </fieldset>
             </form>
           </section>
+
           <section
             class="quick-note-section"
             aria-labelledby="quick-note-heading"
@@ -235,6 +250,7 @@
               <h2 id="quick-note-heading">
                 Quick note <span class="optional">optional</span>
               </h2>
+
               <span class="help"
                 ><button
                   type="button"
@@ -255,6 +271,7 @@
                 ></span
               >
             </div>
+
             <input
               id="note"
               aria-labelledby="quick-note-heading"
@@ -263,47 +280,176 @@
               autocomplete="off"
             />
           </section>
+
           <button id="manual-entry" class="manual-button" type="button">
             Manual entry
           </button>
+
+          <section
+            class="recent-section"
+            aria-labelledby="recent-manual-heading"
+          >
+            <div class="section-heading">
+              <h2 id="recent-manual-heading">Recent manual entries</h2>
+            </div>
+
+            <div id="recent-entries" class="records"></div>
+
+            <button type="button" id="manual-view-all" class="manual-button">
+              View all in Timeline
+            </button>
+          </section>
         </section>
+
         <section
-          id="entries-panel"
+          id="timeline-panel"
           class="tab-panel"
           role="tabpanel"
-          aria-labelledby="entries-tab"
+          aria-labelledby="timeline-tab"
           tabindex="0"
-          hidden=""
+          hidden
         >
           <div class="section-heading">
-            <div class="label-with-help">
-              <h1>
-                Entries <span id="entry-count" class="heading-count">0</span>
-              </h1>
-              <span class="help"
-                ><button
-                  type="button"
-                  class="info-button"
-                  aria-label="About Entries 0"
-                  aria-describedby="info-tooltip-6"
-                  aria-controls="info-tooltip-6"
-                  aria-expanded="false"
-                >
-                  i</button
-                ><span
-                  class="info-tooltip"
-                  id="info-tooltip-6"
-                  hidden=""
-                  role="tooltip"
-                  >Your manually entered time for today.</span
-                ></span
-              >
-            </div>
-            <span id="total">0m logged</span>
+            <h1>Timeline</h1>
+            <span id="timeline-count" class="muted">0 items</span>
           </div>
 
-          <div id="entries-records" class="records"></div>
+          <div class="timeline-navigation">
+            <button
+              type="button"
+              id="timeline-previous"
+              class="small-button"
+              aria-label="Previous week"
+              title="Previous week"
+            >
+              ‹
+            </button>
+
+            <label class="timeline-date-label" for="timeline-date"
+              >Week of<input
+                id="timeline-date"
+                type="date"
+                min="1970-01-05"
+                max="9998-12-31"
+            /></label>
+
+            <button
+              type="button"
+              id="timeline-next"
+              class="small-button"
+              aria-label="Next week"
+              title="Next week"
+            >
+              ›
+            </button>
+
+            <button type="button" id="timeline-today" class="small-button">
+              Today
+            </button>
+          </div>
+
+          <div class="timeline-toolbar">
+            <strong id="timeline-week"></strong>
+
+            <div class="timeline-actions">
+              <button
+                type="button"
+                id="timeline-filter"
+                class="timeline-icon"
+                aria-label="Filter sources"
+                aria-expanded="false"
+                aria-controls="timeline-filters"
+                title="Filter sources"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 6h16M7 12h10M10 18h4" /></svg
+                ><span id="timeline-filter-count" hidden></span>
+              </button>
+
+              <button
+                type="button"
+                id="timeline-expand"
+                class="timeline-icon"
+                aria-label="Expand all days"
+                aria-pressed="false"
+                title="Expand all days"
+              >
+                <svg
+                  class="when-collapsed"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path d="m8 8 4-4 4 4M12 4v6m-4 6 4 4 4-4m-4 4v-6" />
+                </svg>
+
+                <svg
+                  class="when-expanded"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path d="m8 4 4 4 4-4m-4 4V2m-4 18 4-4 4 4m-4-4v6" />
+                </svg>
+              </button>
+
+              <button
+                type="button"
+                id="timeline-details"
+                class="timeline-icon"
+                aria-label="Show details"
+                aria-pressed="false"
+                title="Show details"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M9 5h11M9 12h11M9 19h11M4 5h.01M4 12h.01M4 19h.01" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <fieldset id="timeline-filters" hidden>
+            <legend>Sources</legend>
+
+            <label class="check"
+              ><input
+                id="timeline-source-manual"
+                type="checkbox"
+                checked
+              />Manual entries</label
+            >
+
+            <label class="check"
+              ><input
+                id="timeline-source-git"
+                type="checkbox"
+                checked
+              />Git</label
+            >
+
+            <label class="check"
+              ><input
+                id="timeline-source-activity"
+                type="checkbox"
+                checked
+              />Activity</label
+            >
+          </fieldset>
+
+          <div
+            id="timeline-error"
+            class="notice error"
+            role="alert"
+            hidden
+          ></div>
+
+          <p id="timeline-loading" class="muted" role="status" hidden>
+            Loading timeline…
+          </p>
+
+          <div id="timeline-days" class="timeline-days"></div>
+
+          <p id="timeline-total" class="muted" aria-live="polite"></p>
         </section>
+
         <section
           id="git-panel"
           class="tab-panel"
@@ -315,6 +461,7 @@
           <div class="section-heading">
             <div class="label-with-help">
               <h1>Git</h1>
+
               <span class="help"
                 ><button
                   type="button"
@@ -334,6 +481,7 @@
                 ></span
               >
             </div>
+
             <button type="button" id="git-add" class="small-button">
               Add repository
             </button>
@@ -341,9 +489,11 @@
 
           <div class="git-toolbar">
             <label for="git-filter">Repository</label>
+
             <select id="git-filter">
               <option value="">All repositories</option>
             </select>
+
             <button
               type="button"
               id="git-edit"
@@ -352,6 +502,7 @@
             >
               Edit
             </button>
+
             <button
               type="button"
               id="git-remove"
@@ -361,16 +512,19 @@
               Remove
             </button>
           </div>
+
           <div class="git-filter-row">
             <div>
               <label for="git-day"
                 >Timeline date <span class="optional">optional</span></label
               ><input type="date" id="git-day" />
             </div>
+
             <button type="button" id="git-refresh" class="small-button">
               Refresh now
             </button>
           </div>
+
           <p
             id="git-status"
             class="git-status"
@@ -379,15 +533,20 @@
           ></p>
 
           <div id="git-repository-statuses"></div>
+
           <div class="git-timeline-heading">
-            <h2>Commits</h2>
+            <h2>Recent commits</h2>
+
             <span id="git-count" class="muted"></span>
           </div>
+
           <div id="git-commits" class="git-commits"></div>
-          <button type="button" id="git-more" class="manual-button" hidden="">
-            Show more commits
+
+          <button type="button" id="git-view-all" class="manual-button">
+            View all in Timeline
           </button>
         </section>
+
         <section
           id="activity-panel"
           class="tab-panel"
@@ -399,6 +558,7 @@
           <div class="section-heading">
             <div class="label-with-help">
               <h1>Activity</h1>
+
               <span class="help"
                 ><button
                   type="button"
@@ -414,14 +574,30 @@
                   id="info-tooltip-7"
                   hidden=""
                   role="tooltip"
-                  >Captured application and window activity for today.</span
+                  >Recent application groups for today, ordered by latest
+                  activity.</span
                 ></span
               >
             </div>
           </div>
 
+          <section class="capture-bar">
+            <span class="status"
+              ><i id="status-dot"></i><span id="status">Connecting…</span></span
+            ><button id="pause" class="small-button" disabled="">
+              Start tracking
+            </button>
+          </section>
+
+          <h2>Recent activity today</h2>
+
           <div id="activity-records" class="records"></div>
+
+          <button type="button" id="activity-view-all" class="manual-button">
+            View all in Timeline
+          </button>
         </section>
+
         <section
           id="preferences-panel"
           class="tab-panel"
@@ -432,15 +608,64 @@
         >
           <div class="section-heading"><h1>Preferences</h1></div>
 
+          <section
+            class="preview-settings"
+            aria-labelledby="preview-settings-heading"
+          >
+            <h2 id="preview-settings-heading">Recent items</h2>
+
+            <form id="preview-settings-form" class="preview-grid">
+              <label for="preview-manual"
+                >Manual entries<input
+                  id="preview-manual"
+                  type="number"
+                  min="1"
+                  max="100"
+                  step="1"
+                  required
+                  value="3"
+              /></label>
+
+              <label for="preview-git"
+                >Git commits<input
+                  id="preview-git"
+                  type="number"
+                  min="1"
+                  max="100"
+                  step="1"
+                  required
+                  value="10"
+              /></label>
+
+              <label for="preview-activity"
+                >Activity groups<input
+                  id="preview-activity"
+                  type="number"
+                  min="1"
+                  max="100"
+                  step="1"
+                  required
+                  value="10"
+              /></label>
+
+              <button type="submit" class="small-button">Apply</button>
+            </form>
+          </section>
+
           <div class="appearance-setting">
             <label for="colour-scheme">Colour scheme</label>
+
             <select id="colour-scheme">
               <option value="green">Green</option>
+
               <option value="light">Light</option>
+
               <option value="dark">Dark</option>
+
               <option value="dreamy">Dreamy</option>
             </select>
           </div>
+
           <div class="label-with-help">
             <label class="check"
               ><input type="checkbox" id="startup" disabled="" /> Start with
@@ -518,6 +743,7 @@
                 ></span
               >
             </div>
+
             <div class="shortcut-row">
               <input
                 id="shortcut"
@@ -529,6 +755,7 @@
 
           <section class="preferences-section">
             <h2>Timing</h2>
+
             <form id="timing-form">
               <div class="timing-grid">
                 <div>
@@ -556,6 +783,7 @@
                       ></span
                     >
                   </div>
+
                   <input
                     id="git-seconds"
                     type="number"
@@ -566,6 +794,7 @@
                     required=""
                   />
                 </div>
+
                 <div>
                   <div class="label-with-help">
                     <label for="activity-seconds"
@@ -591,6 +820,7 @@
                       ></span
                     >
                   </div>
+
                   <input
                     id="activity-seconds"
                     type="number"
@@ -601,6 +831,7 @@
                     required=""
                   />
                 </div>
+
                 <div>
                   <div class="label-with-help">
                     <label for="idle-seconds">Idle threshold (seconds)</label
@@ -625,6 +856,7 @@
                       ></span
                     >
                   </div>
+
                   <input
                     id="idle-seconds"
                     type="number"
@@ -635,6 +867,7 @@
                     required=""
                   />
                 </div>
+
                 <div>
                   <div class="label-with-help">
                     <label for="refresh-seconds"
@@ -659,6 +892,7 @@
                       ></span
                     >
                   </div>
+
                   <input
                     id="refresh-seconds"
                     type="number"
@@ -670,6 +904,7 @@
                   />
                 </div>
               </div>
+
               <div class="timing-actions">
                 <button id="timing-save" class="small-button" type="submit">
                   Apply timing settings
@@ -677,8 +912,10 @@
               </div>
             </form>
           </section>
+
           <div class="label-with-help heading-with-help preferences-section">
             <h2>Local storage</h2>
+
             <span class="help"
               ><button
                 type="button"
@@ -699,9 +936,11 @@
               ></span
             >
           </div>
+
           <code id="database-path"></code>
         </section>
       </main>
+
       <footer>
         <span
           id="footer-status"
@@ -709,11 +948,14 @@
           aria-live="polite"
           aria-atomic="true"
         ></span>
+
         <span>v0.1</span>
       </footer>
+
       <dialog id="git-dialog" aria-labelledby="git-dialog-heading">
         <div class="modal-heading">
           <h2 id="git-dialog-heading">Add repository</h2>
+
           <button
             type="button"
             id="git-dialog-close"
@@ -723,14 +965,17 @@
             ×
           </button>
         </div>
+
         <div
           id="git-dialog-error"
           class="notice error"
           role="alert"
           hidden=""
         ></div>
+
         <form id="git-repository-form">
           <label for="git-path">Local repository folder</label>
+
           <div class="project-row">
             <input
               id="git-path"
@@ -742,7 +987,9 @@
               Browse folder
             </button>
           </div>
+
           <datalist id="git-recent-paths"></datalist>
+
           <button
             type="button"
             id="git-inspect"
@@ -750,6 +997,7 @@
           >
             Read Git settings
           </button>
+
           <div class="label-with-help">
             <label for="git-project">Project or task</label
             ><span class="help"
@@ -772,6 +1020,7 @@
               ></span
             >
           </div>
+
           <div data-project-selector="" data-prefix="git-"></div>
 
           <div class="label-with-help">
@@ -796,11 +1045,13 @@
               ></span
             >
           </div>
+
           <input type="date" id="git-from" required="" min="1970-01-01" />
 
           <label class="check"
             ><input type="checkbox" id="git-all-authors" />All authors</label
           >
+
           <div class="label-with-help">
             <label for="git-authors">Your author emails</label
             ><span class="help"
@@ -823,6 +1074,7 @@
               ></span
             >
           </div>
+
           <input
             id="git-authors"
             placeholder="you@work.com, you@personal.com"
@@ -833,16 +1085,19 @@
             <button type="button" id="git-dialog-cancel" class="manual-button">
               Cancel
             </button>
+
             <button type="submit" id="git-save" class="primary">
               Save repository
             </button>
           </div>
         </form>
       </dialog>
+
       <dialog id="manual-dialog" aria-labelledby="manual-heading">
         <div class="modal-heading">
           <div class="label-with-help">
             <h2 id="manual-heading">Manual entry</h2>
+
             <span class="help"
               ><button
                 type="button"
@@ -863,6 +1118,7 @@
               ></span
             >
           </div>
+
           <button
             type="button"
             id="manual-close"
@@ -879,6 +1135,7 @@
           class="notice error"
           hidden=""
         ></div>
+
         <form id="manual-form">
           <div class="label-with-help">
             <label for="manual-project">Project or task</label
@@ -902,10 +1159,12 @@
               ></span
             >
           </div>
+
           <div data-project-selector="" data-prefix="manual-"></div>
 
           <fieldset class="slot-field">
             <legend>Time spent</legend>
+
             <div
               class="slot-presets"
               role="group"
@@ -918,6 +1177,7 @@
               ><button type="button" data-minutes="240">4h</button
               ><button type="button" data-minutes="480">8h</button>
             </div>
+
             <div class="custom-duration">
               <div class="label-with-help">
                 <label for="manual-minutes">Custom minutes</label
@@ -940,6 +1200,7 @@
                   ></span
                 >
               </div>
+
               <input
                 id="manual-minutes"
                 type="number"
@@ -951,26 +1212,32 @@
               />
             </div>
           </fieldset>
+
           <div class="field-row manual-times">
             <div>
               <label for="manual-start">Starting at</label
               ><input type="datetime-local" id="manual-start" required="" />
             </div>
+
             <div>
               <label for="manual-end">Ending at</label
               ><input type="datetime-local" id="manual-end" required="" />
             </div>
           </div>
+
           <label for="manual-note"
             >Quick note <span class="optional">optional</span></label
           >
+
           <input
             id="manual-note"
             placeholder="What did you work on?"
             maxlength="1000"
             autocomplete="off"
           />
+
           <p id="manual-range" class="muted"></p>
+
           <div class="modal-actions">
             <button type="button" id="manual-cancel" class="manual-button">
               Cancel</button
@@ -981,6 +1248,7 @@
         </form>
       </dialog>
     </div>
+
     <template id="project-selector-template"
       ><div class="project-selector">
         <div class="project-row">
@@ -1004,6 +1272,7 @@
             ▾
           </button>
         </div>
+
         <div class="project-picker" hidden="">
           <div
             class="project-options"
@@ -1011,8 +1280,10 @@
             aria-label="Saved projects and tasks"
           ></div>
         </div>
+
         <p class="project-status" role="status" aria-live="polite"></p></div
     ></template>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

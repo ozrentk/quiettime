@@ -166,9 +166,26 @@ impl Store {
         to: Option<i64>,
         limit: u32,
     ) -> Result<(Vec<TimelineCommit>, bool), String> {
+        let mut commits = self.query_git_timeline(repository_id, from, to, i64::from(limit) + 1)?;
+        let has_more = commits.len() > limit as usize;
+        commits.truncate(limit as usize);
+        Ok((commits, has_more))
+    }
+    pub(crate) fn git_history(&self, from: i64, to: i64) -> Result<Vec<TimelineCommit>, String> {
+        // SQLite LIMIT -1 returns the complete bounded week, independent of preview counts.
+        self.query_git_timeline(None, Some(from), Some(to), -1)
+    }
+
+    fn query_git_timeline(
+        &self,
+        repository_id: Option<i64>,
+        from: Option<i64>,
+        to: Option<i64>,
+        limit: i64,
+    ) -> Result<Vec<TimelineCommit>, String> {
         let mut query = self.0.prepare(sql::TIMELINE).map_err(|e| e.to_string())?;
         let rows = query
-            .query_map(params![repository_id, from, to, limit + 1], |row| {
+            .query_map(params![repository_id, from, to, limit], |row| {
                 Ok(TimelineCommit {
                     repository_id: row.get(0)?,
                     repository: row.get(1)?,
@@ -182,11 +199,9 @@ impl Store {
                 })
             })
             .map_err(|e| e.to_string())?;
-        let mut commits = rows
+        let commits = rows
             .collect::<Result<Vec<_>, _>>()
             .map_err(|e| e.to_string())?;
-        let has_more = commits.len() > limit as usize;
-        commits.truncate(limit as usize);
-        Ok((commits, has_more))
+        Ok(commits)
     }
 }

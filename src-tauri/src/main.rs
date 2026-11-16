@@ -5,6 +5,7 @@ mod commands;
 #[cfg(all(dev, windows))]
 mod dev_session;
 mod git;
+mod history;
 mod hud;
 mod platform;
 mod sql;
@@ -61,6 +62,7 @@ fn main() {
         })
         .invoke_handler(tauri::generate_handler![
             commands::dashboard,
+            history::timeline_snapshot,
             timing::set_timing,
             hud::hud_ready,
             commands::add_entry,

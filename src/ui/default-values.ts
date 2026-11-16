@@ -4,6 +4,7 @@ import {
   type EntryDefaults,
 } from "../storage/defaults";
 import { el, input } from "../utils/dom";
+import { clearFieldError } from "./field-errors";
 import { isValidMinutes } from "../utils/time";
 
 export interface DefaultValuesController {
@@ -28,6 +29,8 @@ export function initDefaultValues(
   }
 
   function save() {
+    if (getValues().project.trim()) clearFieldError("project");
+    if (isValidMinutes(minutes)) clearFieldError("minutes");
     try {
       writeDefaults({
         ...readDefaults(),

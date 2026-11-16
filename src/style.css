@@ -871,11 +871,15 @@ footer {
   gap: 12px;
 }
 #footer-status {
+  color: var(--muted);
   min-width: 0;
   flex: 1;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+#footer-status[data-kind="warning"] {
+  color: var(--paused);
 }
 footer > span:last-child {
   flex-shrink: 0;
@@ -1003,4 +1007,38 @@ section.preferences-section > h2 {
   .timing-grid {
     grid-template-columns: 1fr;
   }
+}
+.recent-section {
+  margin-top: 26px;
+}
+.preview-settings {
+  margin-bottom: 24px;
+}
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+.preview-grid label {
+  margin: 0;
+}
+.preview-grid input {
+  margin-top: 8px;
+}
+.preview-grid button {
+  grid-column: 1 / -1;
+  justify-self: end;
+}
+@media (max-width: 420px) {
+  .preview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.app-tabs {
+  grid-template-columns: 1.5fr 1fr 0.65fr 1fr 1.25fr;
+}
+.app-tabs button {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }

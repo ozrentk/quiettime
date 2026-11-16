@@ -1,7 +1,7 @@
 use crate::{
     activity, hud, startup,
     state::{lock, State},
-    store::{Activity, Entry},
+    store::{Activity, Entry, SavedEntry},
     utils::now,
 };
 use serde::Serialize;
@@ -20,6 +20,7 @@ pub(crate) struct Dashboard {
     capture_error: Option<String>,
     database_path: String,
     entries: Vec<Entry>,
+    recent_entries: Vec<Entry>,
     projects: Vec<String>,
     activity: Vec<Activity>,
 }
@@ -45,6 +46,7 @@ pub(crate) fn dashboard(
         capture_error: core.capture_error.clone(),
         database_path: core.database_path.clone(),
         entries: core.store.entries(from, to)?,
+        recent_entries: core.store.recent_entries()?,
         projects: core.store.projects()?,
         activity: core.store.activity(from, to)?,
     })
@@ -62,7 +64,7 @@ pub(crate) fn add_entry(
     note: String,
     end: i64,
     minutes: i64,
-) -> Result<i64, String> {
+) -> Result<SavedEntry, String> {
     if !(1..=480).contains(&minutes) || end > now() + 60_000 || end < 0 {
         return Err("Choose a past end time and a duration from 1 to 480 whole minutes".into());
     }
@@ -78,7 +80,7 @@ pub(crate) fn add_manual_entry(
     note: String,
     start: i64,
     end: i64,
-) -> Result<i64, String> {
+) -> Result<SavedEntry, String> {
     if start < 0 || end > now() + 60_000 {
         return Err("Manual entries must end in the past".into());
     }

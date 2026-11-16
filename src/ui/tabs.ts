@@ -2,7 +2,7 @@ import { el, input } from "../utils/dom";
 
 const sections = [
   "general",
-  "entries",
+  "timeline",
   "git",
   "activity",
   "preferences",
@@ -50,6 +50,7 @@ export function initTabs(onChange: (section: Section) => void) {
   }
   select("general");
   return {
+    select,
     focusActive() {
       if (selected === "general") input("project").focus();
       else el(`${selected}-tab`).focus();

@@ -13,6 +13,40 @@ static NEXT_ID: AtomicUsize = AtomicUsize::new(0);
 const SINCE: i64 = 1_700_000_000_000;
 
 #[test]
+fn weekly_history_is_complete_and_independent_of_preview_limits() {
+    let repo = TestRepo::new();
+    let store = database();
+    let registered = register(&store, &repo);
+    let commits: Vec<_> = (0..1005)
+        .map(|index| super::models::Commit {
+            sha: format!("{index:040x}"),
+            subject: format!("Commit {index}"),
+            author_name: "Author".into(),
+            author_email: "me@example.test".into(),
+            authored_at: SINCE + index,
+            committed_at: SINCE + index,
+        })
+        .collect();
+    store
+        .git_store_import(&registered, &commits, SINCE + 2000)
+        .unwrap();
+    let (preview, more) = store
+        .git_timeline(None, Some(SINCE), Some(SINCE + 2000), 10)
+        .unwrap();
+    assert_eq!(preview.len(), 10);
+    assert!(more);
+    assert_eq!(store.git_history(SINCE, SINCE + 2000).unwrap().len(), 1005);
+    assert_eq!(
+        store.git_history(SINCE + 1000, SINCE + 1005).unwrap().len(),
+        5
+    );
+    assert!(store
+        .git_history(SINCE + 1005, SINCE + 2000)
+        .unwrap()
+        .is_empty());
+}
+
+#[test]
 fn repository_project_creation_is_atomic_and_case_insensitive() {
     let store = Store::new(rusqlite::Connection::open_in_memory().unwrap()).unwrap();
     let inspection = super::models::Inspection {

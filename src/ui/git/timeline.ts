@@ -10,7 +10,7 @@ const timestamp = (value: number) =>
     minute: "2-digit",
   });
 
-export function renderGitTimeline(data: GitSnapshot, limit: number) {
+export function renderGitTimeline(data: GitSnapshot) {
   const statuses = el("git-repository-statuses");
   statuses.replaceChildren();
   for (const repo of data.repositories) {
@@ -73,10 +73,4 @@ export function renderGitTimeline(data: GitSnapshot, limit: number) {
     );
     list.append(row);
   }
-  el<HTMLButtonElement>("git-more").hidden = !data.hasMore;
-  el<HTMLButtonElement>("git-more").disabled = limit >= 1000;
-  el("git-more").textContent =
-    limit >= 1000
-      ? "Latest 1,000 shown — narrow the date or repository filter"
-      : "Show more commits";
 }

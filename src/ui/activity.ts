@@ -5,7 +5,7 @@ import { formatDuration, formatTime } from "../utils/time";
 
 export function initActivity() {
   const openApps = new Map<string, boolean>();
-  function render(rows: Activity[], paused: boolean) {
+  function render(rows: Activity[], paused: boolean, limit = 100) {
     const list = el("activity-records");
     // Preserve expansion across the five-second dashboard refresh.
     for (const group of list.querySelectorAll<HTMLDetailsElement>(
@@ -26,7 +26,7 @@ export function initActivity() {
       );
       return;
     }
-    for (const app of groups) {
+    for (const app of groups.slice(0, limit)) {
       const group = document.createElement("details");
       group.className = "activity-app";
       group.dataset.app = app.key;

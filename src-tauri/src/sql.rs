@@ -15,3 +15,5 @@ pub const EXTEND_ACTIVITY: &str = include_str!("../sql/extend_activity.sql");
 pub const INSERT_ACTIVITY: &str = include_str!("../sql/insert_activity.sql");
 #[cfg(test)]
 pub const LEGACY_V1: &str = include_str!("../sql/legacy_v1.sql");
+
+pub const RECENT_ENTRIES: &str = include_str!("../sql/recent_entries.sql");

@@ -50,13 +50,17 @@ There is no automatic timesheet submission in this version.
 
 ## Local Git integration
 
-The records area has three tabs: **Entries** for manually entered time,
-**Git** for commit history, and **Activity** for foreground app/window activity.
+The HUD has five tabs: **Manual entries**, **Timeline**, **Git**, **Activity**,
+and **Preferences**. Manual entries contains the entry defaults, Quick note,
+Manual entry dialog and recent manual entries. Git contains repository management
+and recent commits. Activity contains today’s recent application groups and the
+Start/Pause recording control.
 Git commits do not create time entries or link to manual entries.
 
-In General, type a Quick note and press Enter to save a manual time entry using
-the selected project/task and time slot, ending now. A successful save clears
-the note and updates Entries. Failed saves keep the draft. The Manual entry
+In Manual entries, type a Quick note and press Enter to save a manual time entry using
+the selected project/task and time slot, ending now. Enter waits for an in-progress save instead of discarding the action.
+A successful save clears
+the note and updates the manual preview and Timeline. Failed saves keep the draft. The Manual entry
 button remains available for choosing exact start and end times.
 
 Activity is grouped into expandable app sections with total recorded time.
@@ -72,7 +76,7 @@ settings. Cancel or Escape discards changes; saving closes it and starts import.
 and reads configured `user.email` values. Previously added folders appear in the
 path suggestions and repository selector; external editor/client history is not
 scanned. Choose an existing project/task from the suggestions or type a new name.
-General, Manual entry, and the repository dialog use one shared project selector:
+Manual entries, Manual entry, and the repository dialog use one shared project selector:
 open the dropdown for saved projects, type to filter, or choose **Add new
 project/task…**. A typed new name offers **Add “name”**. Arrow keys select an
 option, Enter chooses/adds it, and Escape closes the dropdown before the dialog.
@@ -93,11 +97,14 @@ branches and already-present remote-tracking refs. The app never fetches, pulls,
 contacts origin, or changes repository files. Empty repositories are supported.
 Git for Windows must be installed and available on PATH.
 
-The timeline can be filtered by repository and local calendar date. Import
+The Git preview can be filtered by repository and local calendar date. Import
 cutoffs and displayed commit times use Git's committer timestamp; author filtering
 uses the author's email. Both author and committer timestamps are stored. The
-timeline shows up to 100 commits initially, with **Show more** up to 1,000; narrow
-the filters to inspect larger histories. It never assigns a work duration.
+Git preview defaults to the latest 10 commits. **Preferences → Recent items**
+configures manual entries (3), Git commits (10), and today’s activity groups (10),
+each from 1 to 100. Preview counts are stored locally alongside appearance
+preferences. **View all in Timeline** enables the source alongside existing filters and opens the week
+containing its latest displayed record. It never assigns commits a work duration.
 
 Repeated imports atomically replace the repository's cached snapshot, preventing
 duplicates across branches. Changed settings clear the old cache; an in-flight
@@ -111,8 +118,38 @@ Git code is split across `src-tauri/src/git/` (commands, reader, process runner,
 storage, worker, types, native Windows folder picker), `src-tauri/sql/git_*.sql`,
 `src/git/` (frontend types, API, dates), and `src/ui/git/` (form, timeline, controller).
 
-Tracking starts paused on first launch. Click **Start tracking** to enable it.
+Tracking starts paused on first launch. Open **Activity** and click
+**Start tracking** to enable it.
 The app remembers the tracking preference across launches.
+
+## Unified Timeline
+
+Timeline combines manual entries, imported local Git commits and application
+activity sessions, ordered by time within Monday–Sunday groups. It starts on the
+current week with today expanded. Previous/next week, Today and a date picker
+navigate history without changing source-tab filters or repository import dates.
+The weekly query includes all matching records, independent of preview limits.
+
+The filter icon opens source checkboxes; deselecting everything intentionally
+shows no items. Its badge indicates how many sources remain selected. The other
+icons expand/collapse all days and toggle notes, window titles, authors and hashes.
+Individual days expand separately. Filters, detail visibility and the most recent
+70 day-expansion choices persist locally; changing tabs and background refreshes
+preserve them. Escape closes the filter panel before hiding the HUD.
+
+Only manual entries contribute to logged-time totals. Entries crossing midnight
+are allocated to each local day; activity, commits and manual time can overlap.
+Activity is shown as recorded app sessions, with successive titles deduplicated.
+Manual entries can be deleted from either their preview or the Timeline.
+Calendar and Azure DevOps integrations are planned and are not included yet.
+
+Timeline data shaping and local dates live in `src/timeline/`; controls, rendering
+and loading are in `src/ui/timeline/`, with styling in `src/timeline.css`.
+`src-tauri/src/history.rs` reads a bounded week of SQLite history in a background
+task. SQL remains in `src-tauri/sql/`. Run `npm test` for timeline date, grouping,
+filter and preference checks, and `npm run build` for TypeScript and production
+frontend validation. Source snapshots for the two implementation checkpoints are
+under `output/checkpoints/`; they contain source/configuration only, no user data.
 
 ## Entries and capture
 
@@ -125,8 +162,8 @@ The app remembers the tracking preference across launches.
   SQLite `projects` table without logging time. Names are trimmed and deduplicated
   without regard to letter case. Existing entry names migrate automatically;
   projects remain available even if all of their time entries are deleted.
-- Defaults and Quick note do not log time. Use **Manual entry** and its Save
-  button to create a time entry.
+- Changing defaults does not log time. Press Enter in Quick note to save using
+  the defaults, or use **Manual entry** to choose exact start/end times.
 - **Time slot** offers 15min, 30min, 1h, 2h, 4h, and 8h buttons, plus a custom
   textbox accepting any whole number of minutes from 1 to 480.
 - **Manual entry** opens a modal dialog prefilled from **Default values** and
@@ -138,7 +175,9 @@ The app remembers the tracking preference across launches.
 - Edits inside the dialog never change defaults. Cancel or Escape closes the
   dialog without saving; Escape closes an open project picker first. Focus
   returns to the Manual entry button. Tab stays within the open modal.
-- Overlapping manual entries are rejected; remove an incorrect entry and re-enter it.
+- Overlapping entries are supported for parallel tasks. Saving succeeds and shows
+  a warning in the footer. Logged totals add task durations, including parallel
+  work; the Timeline also shows elapsed coverage when these differ.
 - By default, Windows capture samples foreground process name and optional window
   title every five seconds. After 60 seconds without input, samples are labelled idle.
 - Sampling is approximate: transitions may differ by up to one sampling interval.
@@ -172,9 +211,9 @@ serialization lives in `src/storage/defaults.ts`, and data types in `src/types.t
 Rust timestamp and positioning helpers live in `src-tauri/src/utils.rs`.
 UI controllers live in `src/ui/`: `default-values.ts`, `manual-entry.ts`,
 `project-selection.ts`, `quick-note.ts`, and `settings.ts` own their controls and event handlers;
-`records.ts` renders separate entries and activity lists. `tabs.ts` owns the
-top-level General, Entries, Git, Activity, and Preferences navigation, keyboard
-navigation, and per-panel scroll positions. General opens first; switching tabs
+`records.ts` renders recent manual entries and activity previews. `tabs.ts` owns the
+top-level Manual entries, Timeline, Git, Activity, and Preferences navigation,
+keyboard navigation, and per-panel scroll positions. Manual entries opens first; switching tabs
 keeps unsaved form values. `tooltips.ts` handles the information icons next to
 labels (hover, focus, or click; Escape dismisses). `project-selector.ts` mounts
 the shared HTML template and owns filtering, selection, adding, and keyboard

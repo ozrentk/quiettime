@@ -5,7 +5,8 @@ import type { UIContext } from "./context";
 import type { DefaultValuesController } from "./default-values";
 import type { ProjectSelectionController } from "./project-selection";
 import type { QuickNoteController } from "./quick-note";
-import { showStatus } from "./status";
+import type { SavedEntry } from "../types";
+import { showEntrySaved } from "./entry-feedback";
 
 export interface ManualEntryController {
   isOpen(): boolean;
@@ -110,7 +111,7 @@ export function initManualEntry(
         );
       if (!isValidMinutes(minutes))
         throw new Error("Enter a whole number of minutes from 1 to 480.");
-      await invoke("add_manual_entry", {
+      const saved = await invoke<SavedEntry>("add_manual_entry", {
         project: input("manual-project").value,
         note: input("manual-note").value,
         start,
@@ -119,7 +120,7 @@ export function initManualEntry(
       dialog.close();
       projects.close();
       el("manual-entry").focus();
-      showStatus("Manual entry saved.");
+      showEntrySaved(saved, "Manual entry saved.");
       await context.refresh();
     });
   });

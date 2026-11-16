@@ -6,12 +6,15 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 1420 --strictPort",
     "build": "tsc --noEmit && vite build",
+    "test": "node --test tests/*.test.mjs",
     "tauri": "tauri",
     "desktop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/desktop.ps1",
     "desktop:dev": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-desktop.ps1",
     "desktop:build": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/desktop.ps1 -BuildOnly -Rebuild"
   },
-  "dependencies": { "@tauri-apps/api": "^2.0.0" },
+  "dependencies": {
+    "@tauri-apps/api": "^2.0.0"
+  },
   "devDependencies": {
     "@tauri-apps/cli": "^2.0.0",
     "typescript": "~5.9.3",

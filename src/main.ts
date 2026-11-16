@@ -7,6 +7,7 @@ import { initDefaultValues } from "./ui/default-values";
 import { initManualEntry } from "./ui/manual-entry";
 import { initProjectSelection } from "./ui/project-selection";
 import { initSettings } from "./ui/settings";
+import { initTimeline } from "./ui/timeline";
 import { initRecords } from "./ui/records";
 import { initQuickNote } from "./ui/quick-note";
 import { initGit } from "./ui/git";
@@ -16,6 +17,9 @@ import { initTabs } from "./ui/tabs";
 import { initTooltips } from "./ui/tooltips";
 import { mountProjectSelectors } from "./ui/project-selector";
 import { initDashboardRefresh } from "./ui/dashboard-refresh";
+import { initPreviewSettings } from "./ui/preview-settings";
+import { createActionRunner } from "./ui/action-runner";
+import { displayError } from "./ui/field-errors";
 import { renderCaptureHealth } from "./ui/capture-health";
 
 mountProjectSelectors();
@@ -23,7 +27,6 @@ initAppearance();
 initTooltips();
 const native = isTauri();
 let data: Dashboard | undefined;
-let busy = false;
 
 function showError(message: unknown = "") {
   const dialog = el<HTMLDialogElement>("manual-dialog");
@@ -34,30 +37,26 @@ function showError(message: unknown = "") {
         ? "git-dialog-error"
         : "error",
   );
-  target.textContent = String(message);
-  target.hidden = !message;
+  displayError(target, message);
 }
 
-async function run(work: () => Promise<void>) {
-  if (busy) return;
-  busy = true;
-  el<HTMLButtonElement>("manual-save").disabled = true;
-  showError();
-  try {
-    await work();
-  } catch (error) {
-    showError(error);
-  } finally {
-    busy = false;
+const actions = createActionRunner({
+  start() {
+    el<HTMLButtonElement>("manual-save").disabled = true;
+    showError();
+  },
+  error: showError,
+  end() {
     el<HTMLButtonElement>("manual-save").disabled = !native;
     input("startup").disabled = !data?.startupAvailable;
     if (data) settings.render(data);
-  }
-}
+  },
+});
+const run = actions.run;
 
 const context: UIContext = {
   native,
-  isBusy: () => busy,
+  isBusy: actions.isBusy,
   getData: () => data,
   run,
   refresh,
@@ -69,11 +68,34 @@ const manual = initManualEntry(context, defaults, projects, quickNote);
 const settings = initSettings(context);
 const git = initGit(context, projects);
 const records = initRecords(context);
+const timeline = initTimeline(context);
+initPreviewSettings(() => {
+  records.render();
+  git.update(data?.projects ?? []);
+});
 const autoRefresh = initDashboardRefresh(() => refresh().catch(showError));
 const tabs = initTabs((section) => {
   projects.close();
   git.setActive(section === "git");
+  timeline.setActive(section === "timeline");
 });
+
+for (const [id, source] of [
+  ["manual-view-all", "manual"],
+  ["git-view-all", "git"],
+  ["activity-view-all", "activity"],
+] as const) {
+  el(id).addEventListener("click", () => {
+    const timestamp =
+      source === "manual"
+        ? data?.recentEntries?.[0]?.start
+        : source === "git"
+          ? git.previewDate()
+          : data?.activity[0]?.start;
+    timeline.openSource(source, timestamp);
+    tabs.select("timeline");
+  });
+}
 
 async function refresh() {
   if (!native) return;
@@ -88,7 +110,8 @@ async function refresh() {
   settings.render(data);
   projects.render(data.projects);
   git.update(data.projects);
-  records.render(from.getTime(), to.getTime());
+  records.render();
+  void timeline.refresh();
   renderCaptureHealth(data);
   autoRefresh.setSeconds(data.timings.refreshSeconds);
 }
@@ -132,6 +155,7 @@ if (native) {
   });
   const gitChanged = listen("git-changed", () => {
     void git.refresh();
+    void timeline.refresh();
   });
   const captureHealth = listen("capture-health-changed", () => {
     void refresh().catch(showError);

@@ -16,6 +16,13 @@ pub struct Entry {
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct SavedEntry {
+    pub id: i64,
+    pub overlaps: bool,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Activity {
     pub id: i64,
     pub app: String,
@@ -54,7 +61,7 @@ impl Store {
         note: &str,
         start: i64,
         end: i64,
-    ) -> Result<i64, String> {
+    ) -> Result<SavedEntry, String> {
         if project.trim().is_empty() || project.chars().count() > 120 || note.chars().count() > 1000
         {
             return Err(
@@ -65,14 +72,10 @@ impl Store {
         if start < 0 || duration <= 0 || duration > 8 * 60 * 60 * 1000 || duration % 60_000 != 0 {
             return Err("Duration must be whole minutes, from 1 minute to 8 hours".into());
         }
-        let overlaps: bool = self
-            .0
+        let transaction = self.0.unchecked_transaction().map_err(|e| e.to_string())?;
+        let overlaps: bool = transaction
             .query_row(sql::ENTRY_OVERLAPS, params![start, end], |r| r.get(0))
             .map_err(|e| e.to_string())?;
-        if overlaps {
-            return Err("That time overlaps an existing entry. Change the end time or remove the previous entry.".into());
-        }
-        let transaction = self.0.unchecked_transaction().map_err(|e| e.to_string())?;
         transaction
             .execute(sql::INSERT_PROJECT, [project.trim()])
             .map_err(|e| e.to_string())?;
@@ -84,7 +87,7 @@ impl Store {
             .map_err(|e| e.to_string())?;
         let id = transaction.last_insert_rowid();
         transaction.commit().map_err(|e| e.to_string())?;
-        Ok(id)
+        Ok(SavedEntry { id, overlaps })
     }
 
     pub fn delete_entry(&self, id: i64) -> Result<(), String> {
@@ -101,6 +104,25 @@ impl Store {
             .map_err(|e| e.to_string())?;
         let rows = query
             .query_map(params![from, to], |r| {
+                Ok(Entry {
+                    id: r.get(0)?,
+                    project: r.get(1)?,
+                    note: r.get(2)?,
+                    start: r.get(3)?,
+                    end: r.get(4)?,
+                })
+            })
+            .map_err(|e| e.to_string())?;
+        rows.collect::<Result<_, _>>().map_err(|e| e.to_string())
+    }
+
+    pub fn recent_entries(&self) -> Result<Vec<Entry>, String> {
+        let mut query = self
+            .0
+            .prepare(sql::RECENT_ENTRIES)
+            .map_err(|e| e.to_string())?;
+        let rows = query
+            .query_map([], |r| {
                 Ok(Entry {
                     id: r.get(0)?,
                     project: r.get(1)?,
@@ -209,11 +231,29 @@ mod tests {
     }
 
     #[test]
-    fn rejects_overlaps_but_allows_adjacent_entries() {
+    fn saves_parallel_entries_with_a_warning_and_allows_adjacent_entries() {
         let db = store();
-        db.add_entry("Project", "", 900_000, 1_800_000).unwrap();
-        assert!(db.add_entry("Other", "", 0, 1_800_000).is_err());
-        db.add_entry("Other", "", 1_800_000, 2_700_000).unwrap();
+        assert!(
+            !db.add_entry("Project", "", 900_000, 1_800_000)
+                .unwrap()
+                .overlaps
+        );
+        assert!(
+            db.add_entry("Other", "Parallel", 0, 1_800_000)
+                .unwrap()
+                .overlaps
+        );
+        assert!(
+            db.add_entry("Project", "Same span", 900_000, 1_800_000)
+                .unwrap()
+                .overlaps
+        );
+        assert!(
+            !db.add_entry("Other", "", 1_800_000, 2_700_000)
+                .unwrap()
+                .overlaps
+        );
+        assert_eq!(db.entries(0, 2_700_000).unwrap().len(), 4);
         assert!(db.add_entry("", "", 0, 900_000).is_err());
         assert!(db.add_entry("Other", "", 0, 10_000).is_err());
     }
@@ -233,6 +273,10 @@ mod tests {
         .unwrap();
         assert_eq!(db.projects().unwrap().len(), 2);
         assert_eq!(db.entries(86_400_000, 172_800_000).unwrap().len(), 2);
+        let recent = db.recent_entries().unwrap();
+        assert_eq!(recent.len(), 3);
+        assert_eq!(recent[0].start, 86_400_000 + 23 * 60_000);
+        assert_eq!(recent[2].start, 0);
         assert!(db
             .add_entry("Invalid", "", 172_800_000, 172_830_000)
             .is_err());
@@ -250,7 +294,7 @@ mod tests {
         assert!(db.entries(0, 86_400_000).unwrap().is_empty());
         assert!(db.save_project(" ").is_err());
         assert!(db.save_project(&"x".repeat(121)).is_err());
-        let id = db.add_entry("New task", "", 0, 60_000).unwrap();
+        let id = db.add_entry("New task", "", 0, 60_000).unwrap().id;
         db.delete_entry(id).unwrap();
         assert_eq!(db.projects().unwrap(), vec!["New task"]);
     }

@@ -1,0 +1,219 @@
+.timeline-navigation,
+.timeline-toolbar,
+.timeline-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.timeline-navigation {
+  margin: 16px 0;
+}
+.timeline-date-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  flex: 1;
+  min-width: 150px;
+}
+.timeline-date-label input {
+  width: auto;
+  min-width: 0;
+  flex: 1;
+}
+.timeline-toolbar {
+  justify-content: space-between;
+  margin: 16px 0;
+}
+.timeline-toolbar > strong {
+  font-size: 12px;
+}
+.timeline-actions {
+  gap: 5px;
+}
+.timeline-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 34px;
+  height: 34px;
+  padding: 7px;
+  background: var(--raised);
+  color: var(--secondary);
+  border: 1px solid var(--border-control);
+  border-radius: 6px;
+}
+.timeline-icon:hover {
+  background: var(--hover);
+}
+.timeline-icon[aria-pressed="true"],
+.timeline-icon[aria-expanded="true"] {
+  background: var(--selected);
+  color: var(--selected-text);
+}
+.timeline-icon svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.timeline-icon .when-expanded,
+.timeline-icon[aria-pressed="true"] .when-collapsed {
+  display: none;
+}
+.timeline-icon[aria-pressed="true"] .when-expanded {
+  display: block;
+}
+#timeline-filter-count {
+  font-size: 10px;
+}
+#timeline-filters {
+  border: 1px solid var(--border-control);
+  border-radius: 8px;
+  background: var(--raised);
+  padding: 12px;
+  margin: 0 0 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+#timeline-filters legend {
+  color: var(--secondary);
+  font-size: 12px;
+  padding: 0 5px;
+}
+#timeline-filters .check {
+  margin: 0;
+}
+.timeline-days {
+  border-left: 1px solid var(--border-control);
+  margin: 24px 0 16px 6px;
+  padding-left: 20px;
+}
+.timeline-day {
+  position: relative;
+  padding-bottom: 22px;
+}
+.timeline-day::before {
+  content: "";
+  position: absolute;
+  left: -27px;
+  top: 6px;
+  width: 12px;
+  height: 12px;
+  background: var(--bg);
+  border: 2px solid var(--border-strong);
+  border-radius: 50%;
+}
+.timeline-day[open]::before {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.timeline-day > summary {
+  list-style: none;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+}
+.timeline-day > summary::-webkit-details-marker {
+  display: none;
+}
+.timeline-day > summary strong {
+  font-size: 12px;
+}
+.timeline-day > summary strong::before {
+  content: "▸ ";
+  color: var(--muted);
+}
+.timeline-day[open] > summary strong::before {
+  content: "▾ ";
+}
+.timeline-day > summary small {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+}
+.timeline-logged {
+  font-size: 11px;
+  color: var(--secondary);
+  white-space: nowrap;
+}
+.timeline-item {
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr);
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.timeline-item:last-child {
+  border-bottom: 0;
+}
+.timeline-item time,
+.timeline-source {
+  font-size: 10px;
+  color: var(--muted);
+}
+.timeline-title {
+  margin: 3px 0 0;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.timeline-detail {
+  margin: 5px 0 0;
+  font-size: 11px;
+  color: var(--secondary);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+#timeline-total {
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+@media (pointer: coarse) {
+  .timeline-icon {
+    min-width: 44px;
+    height: 44px;
+  }
+}
+@media (max-width: 420px) {
+  .timeline-day > summary {
+    flex-wrap: wrap;
+  }
+  .timeline-logged {
+    padding-left: 12px;
+  }
+  .timeline-item {
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+}
+.timeline-item:has(.delete) {
+  grid-template-columns: 50px minmax(0, 1fr) 24px;
+}
+@media (max-width: 420px) {
+  .timeline-item:has(.delete) {
+    grid-template-columns: 42px minmax(0, 1fr) 24px;
+  }
+}
+
+.timeline-day {
+  margin-top: 0;
+  border-top: 0;
+  padding-top: 0;
+}
+.timeline-day > summary {
+  color: var(--text);
+}
+.timeline-day[open] > summary {
+  margin-bottom: 8px;
+}
+.timeline-day > .empty {
+  padding: 8px 0;
+  text-align: left;
+}
